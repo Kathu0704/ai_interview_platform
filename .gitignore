@@ -1,8 +1,6 @@
+venv_py39v/
 venv/
-venv_py39/
 __pycache__/
 *.pyc
 db.sqlite3
 .env
-media/
-staticfiles/
