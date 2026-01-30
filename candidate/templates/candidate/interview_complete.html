@@ -1,0 +1,781 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px 0;
+        position: relative;
+    }
+    
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="noise" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="80" r="0.5" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.8" fill="white" opacity="0.05"/><circle cx="10" cy="70" r="0.6" fill="white" opacity="0.08"/></pattern></defs><rect width="100%" height="100%" fill="url(%23noise)"/></svg>');
+        z-index: -1;
+    }
+    
+    .evaluation-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .header-section {
+        text-align: center;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 50px 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: float 20s infinite linear;
+    }
+    
+    @keyframes float {
+        0% { transform: translate(-50px, -50px); }
+        100% { transform: translate(0px, 0px); }
+    }
+    
+    .header-section h2 {
+        margin: 0 0 15px 0;
+        font-size: 3rem;
+        font-weight: 800;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        background: linear-gradient(45deg, #ffffff, #e0e7ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .header-section p {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 400;
+        position: relative;
+        z-index: 1;
+        opacity: 0.9;
+        letter-spacing: 0.5px;
+    }
+    
+    .main-content {
+        padding: 40px 30px;
+    }
+    
+    .score-highlight {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        margin: 30px 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+    }
+    
+    .score-highlight::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #10b981, #3b82f6, #8b5cf6, #10b981);
+        border-radius: 20px;
+        z-index: -1;
+        animation: borderRotate 4s linear infinite;
+        background-size: 400% 400%;
+    }
+    
+    @keyframes borderRotate {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .score-highlight h3 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .summary-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed, #10b981);
+    }
+    
+    .summary-card h4 {
+        margin: 0 0 25px 0;
+        color: #1f2937;
+        font-size: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .stat-item {
+        background: white;
+        padding: 25px 20px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-item:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .stat-item strong {
+        display: block;
+        color: #4f46e5;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .stat-item span {
+        color: #6b7280;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .question-section {
+        margin-bottom: 40px;
+    }
+    
+    .section-header {
+        color: #1f2937;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0 0 30px 0;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #e5e7eb;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .section-header::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    }
+    
+    .question-item {
+        background: white;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+    
+    .question-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed, #10b981);
+    }
+    
+    .question-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .question-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 25px 30px;
+        position: relative;
+    }
+    
+    .question-header strong {
+        color: #1f2937;
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1.5;
+        display: block;
+        margin-bottom: 10px;
+    }
+    
+    .voice-indicator, .text-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    
+    .voice-indicator {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+    
+    .text-indicator {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    
+    .answer-content {
+        padding: 30px;
+        background: rgba(248, 250, 252, 0.5);
+    }
+    
+    .answer-text {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #4f46e5;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .answer-text strong {
+        color: #4f46e5;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        display: block;
+    }
+    
+    .answer-text-content {
+        color: #374151;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+    
+    .evaluation-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 25px 0;
+    }
+    
+    .evaluation-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        border-left: 4px solid #4f46e5;
+        transition: all 0.3s ease;
+    }
+    
+    .evaluation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .evaluation-card h5 {
+        margin: 0 0 12px 0;
+        color: #1f2937;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .score-display {
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .feedback-section {
+        margin-top: 20px;
+    }
+    
+    .feedback-card {
+        padding: 20px;
+        border-radius: 12px;
+        margin: 15px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .feedback-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .feedback-card h5 {
+        margin: 0 0 12px 0;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .strengths-card {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border-left: 4px solid #10b981;
+    }
+    
+    .strengths-card h5 {
+        color: #065f46;
+    }
+    
+    .improvements-card {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border-left: 4px solid #f59e0b;
+    }
+    
+    .improvements-card h5 {
+        color: #92400e;
+    }
+    
+    .feedback-detail-card {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .feedback-detail-card h5 {
+        color: #1e40af;
+    }
+    
+    .feedback-card ul {
+        margin: 8px 0 0 0;
+        padding-left: 20px;
+        list-style: none;
+    }
+    
+    .feedback-card li {
+        margin: 8px 0;
+        color: #374151;
+        line-height: 1.6;
+        position: relative;
+        padding-left: 20px;
+    }
+    
+    .strengths-card li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-weight: bold;
+    }
+    
+    .improvements-card li::before {
+        content: '→';
+        position: absolute;
+        left: 0;
+        color: #f59e0b;
+        font-weight: bold;
+    }
+    
+    .feedback-card p {
+        margin: 8px 0;
+        color: #374151;
+        line-height: 1.7;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 40px;
+        background: rgba(248, 250, 252, 0.5);
+        border-radius: 20px;
+        border: 2px dashed #d1d5db;
+    }
+    
+    .empty-state h4 {
+        color: #6b7280;
+        margin: 0 0 15px 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .empty-state p {
+        color: #9ca3af;
+        font-style: italic;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    .floating-dashboard {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideInUp 0.5s ease forwards 1s;
+    }
+    
+    @keyframes slideInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .dashboard-btn {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 16px 24px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 8px 30px rgba(79, 70, 229, 0.3);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .dashboard-btn:hover {
+        background: linear-gradient(135deg, #3730a3 0%, #6d28d9 100%);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.4);
+        transform: translateY(-3px);
+    }
+    
+    .dashboard-btn::before {
+        content: '←';
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .dashboard-btn:hover::before {
+        transform: translateX(-3px);
+    }
+    
+    @media (max-width: 768px) {
+        .evaluation-container {
+            margin: 10px;
+            border-radius: 20px;
+        }
+        
+        .main-content {
+            padding: 20px 15px;
+        }
+        
+        .header-section {
+            padding: 40px 20px;
+        }
+        
+        .header-section h2 {
+            font-size: 2.2rem;
+        }
+        
+        .summary-stats {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .evaluation-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .question-header, .answer-content {
+            padding: 20px 15px;
+        }
+        
+        .floating-dashboard {
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        .dashboard-btn {
+            padding: 14px 20px;
+            font-size: 0.9rem;
+        }
+    }
+    
+    /* Smooth scroll animations */
+    .fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    
+    .fade-in-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<div class="evaluation-container">
+    <div class="header-section">
+        <h2>🎯 Interview Evaluation Report</h2>
+        <p>Comprehensive analysis of your AI interview performance</p>
+    </div>
+    
+    <div class="main-content">
+        {% if final_score %}
+            <div class="score-highlight">
+                <h3>🏆 Overall Score: {{ final_score }} / 100</h3>
+            </div>
+        {% endif %}
+
+        <div class="summary-card fade-in-up">
+            <h4>📊 Interview Summary</h4>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <strong>{{ total_questions }}</strong>
+                    <span>Total Questions</span>
+                </div>
+                <div class="stat-item">
+                    <strong>{{ answered_questions }}</strong>
+                    <span>Answered</span>
+                </div>
+                <div class="stat-item">
+                    <strong>{{ skipped_questions }}</strong>
+                    <span>Skipped</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-section">
+            <h3 class="section-header">📝 Question-by-Question Analysis</h3>
+            {% if evaluations %}
+                {% for item in evaluations %}
+                    <div class="question-item fade-in-up">
+                        <div class="question-header">
+                            <strong>Q{{ forloop.counter }}: {{ item.question }}</strong>
+                            <div style="margin-top: 10px;">
+                                {% if item.mode == 'voice' %}
+                                    <span class="voice-indicator">🎤 Voice</span>
+                                {% else %}
+                                    <span class="text-indicator">✍️ Text</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="answer-content">
+                            <div class="answer-text">
+                                <strong>Your Answer:</strong>
+                                <div class="answer-text-content">{{ item.answer }}</div>
+                            </div>
+                            
+                            {% if item.avg_score and item.avg_score > 0 %}
+                                <div class="evaluation-grid">
+                                    <div class="evaluation-card">
+                                        <h5>📈 Average Score</h5>
+                                        <div class="score-display">{{ item.avg_score }} / 5</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if item.feedback %}
+                                <div class="feedback-section">
+                                    <div class="feedback-card feedback-detail-card">
+                                        <h5>💬 Detailed Feedback</h5>
+                                        <p>{{ item.feedback }}</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if item.strengths %}
+                                <div class="feedback-section">
+                                    <div class="feedback-card strengths-card">
+                                        <h5>✅ Strengths</h5>
+                                        <ul>
+                                            {% for strength in item.strengths %}
+                                                <li>{{ strength }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if item.improvements %}
+                                <div class="feedback-section">
+                                    <div class="feedback-card improvements-card">
+                                        <h5>🔧 Areas for Improvement</h5>
+                                        <ul>
+                                            {% for improvement in item.improvements %}
+                                                <li>{{ improvement }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h4>📋 No evaluation data available</h4>
+                    <p>It seems no questions were answered during this interview session.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="floating-dashboard">
+    <a href="{% url 'candidate_dashboard' %}" class="dashboard-btn">
+        🏠 Go to Dashboard
+    </a>
+</div>
+
+<script>
+// Smooth scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, observerOptions);
+
+// Initialize animations on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const animatedElements = document.querySelectorAll('.fade-in-up');
+    animatedElements.forEach((element, index) => {
+        element.style.transitionDelay = `${index * 0.1}s`;
+        observer.observe(element);
+    });
+    
+    // Add smooth scrolling for any internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add hover effects to stat items
+    const statItems = document.querySelectorAll('.stat-item');
+    statItems.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            item.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            item.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+
+// Add parallax effect to header
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const header = document.querySelector('.header-section');
+    if (header) {
+        header.style.transform = `translateY(${scrolled * 0.3}px)`;
+    }
+});
+</script>
+
+{% endblock %}

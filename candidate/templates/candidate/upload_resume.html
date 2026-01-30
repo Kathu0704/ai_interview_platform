@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume</title>
+    <link rel="stylesheet" href="{% static 'css/resume_upload.css' %}">
+</head>
+<body>
+    <div class="upload-container">
+        <h2>Upload Resume</h2>
+        
+        <form method="post" enctype="multipart/form-data" id="resumeUploadForm">
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+            <div class="button-container">
+                <button type="submit">Upload Resume</button>
+            </div>
+        </form>
+
+        <!-- Dashboard Button Section -->
+        <div class="dashboard-container">
+            <a href="/candidate/dashboard/" class="dashboard-btn">
+                Go to Dashboard
+            </a>
+        </div>
+
+        <!-- Success Message -->
+        <div id="success-message" style="display: none;">
+            Resume uploaded successfully! Redirecting to dashboard...
+        </div>
+    </div>
+
+    <!-- JavaScript for form handling -->
+    <script>
+        document.getElementById("resumeUploadForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            const form = document.getElementById("resumeUploadForm");
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const successMessage = document.getElementById("success-message");
+            
+            // Disable submit button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Uploading...";
+            
+            // Hide previous success message
+            successMessage.style.display = "none";
+            
+            fetch(form.action || window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Show success message
+                    successMessage.style.display = "block";
+                    successMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    
+                    // Reset form
+                    form.reset();
+                    
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/candidate/dashboard/';
+                    }, 2000);
+                } else {
+                    return response.json().then(data => {
+                        throw new Error(data.error || "An error occurred while uploading the resume.");
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error uploading resume:", error);
+                alert(error.message || "Error uploading resume. Please try again.");
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Upload Resume";
+            });
+        });
+
+        // Optional: Add drag and drop functionality
+        const form = document.getElementById("resumeUploadForm");
+        const fileInput = form.querySelector('input[type="file"]');
+        
+        if (fileInput) {
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                form.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                form.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                form.addEventListener(eventName, unhighlight, false);
+            });
+
+            // Handle dropped files
+            form.addEventListener('drop', handleDrop, false);
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight(e) {
+                form.classList.add('drag-over');
+            }
+
+            function unhighlight(e) {
+                form.classList.remove('drag-over');
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    fileInput.dispatchEvent(event);
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Additional styles for drag and drop */
+        .drag-over {
+            background: rgba(102, 126, 234, 0.05) !important;
+            border-color: #667eea !important;
+        }
+        
+        .drag-over input[type="file"] {
+            border-color: #667eea !important;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6f3ff 100%) !important;
+        }
+    </style>
+</body>
+</html>

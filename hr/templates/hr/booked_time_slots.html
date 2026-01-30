@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Booked Time Slots</title>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<style>
+		body { font-family: 'Poppins', sans-serif; background:#f8f9fa; color:#333; }
+		.navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding:1rem 2rem; display:flex; justify-content:space-between; }
+		.navbar a { color:#fff; text-decoration:none; margin-left:1rem; }
+		.container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+		.slot-card { background:#fff; border-radius:12px; padding:1rem; margin-bottom:1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.08); display:flex; justify-content:space-between; align-items:center; }
+		.slot-date { font-weight:600; }
+		.slot-time { color:#666; font-size:0.95rem; }
+		.badge { padding:6px 12px; border-radius:16px; background:#28a745; color:#fff; font-size:0.8rem; }
+	</style>
+</head>
+<body>
+	<nav class="navbar">
+		<div>Booked Time Slots</div>
+		<div>
+			<a href="{% url 'hr_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+		</div>
+	</nav>
+	<div class="container">
+		{% if booked_slots %}
+			{% for slot in booked_slots %}
+				<div class="slot-card">
+					<div>
+						<div class="slot-date">{{ slot.date|date:"l, F j, Y" }}</div>
+						<div class="slot-time">{{ slot.safe_time_display }}</div>
+					</div>
+					<div class="badge"><i class="fas fa-lock"></i> Booked</div>
+				</div>
+			{% endfor %}
+		{% else %}
+			<p>No booked slots.</p>
+		{% endif %}
+	</div>
+</body>
+</html>

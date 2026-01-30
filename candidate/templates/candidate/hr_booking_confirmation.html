@@ -1,0 +1,359 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - AI Mock Interview Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .booking-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #28a745;
+        }
+
+        .booking-details h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+        }
+
+        .detail-item i {
+            color: #28a745;
+            width: 20px;
+        }
+
+        .meeting-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .meeting-info h3 {
+            color: #1565c0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meeting-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .meeting-detail {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid #bbdefb;
+        }
+
+        .meeting-detail h4 {
+            color: #1565c0;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meeting-detail p {
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .join-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        .join-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .dashboard-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .dashboard-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .instructions ul {
+            color: #856404;
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .detail-grid,
+            .meeting-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .join-btn,
+            .dashboard-btn {
+                display: block;
+                width: 100%;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Booking Confirmed!</h1>
+            <p>Your HR interview has been successfully scheduled</p>
+        </div>
+
+        <div class="content">
+            <div class="status-badge">
+                <i class="fas fa-calendar-check"></i> Interview Scheduled
+            </div>
+
+            <div class="booking-details">
+                <h3><i class="fas fa-info-circle"></i> Interview Details</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <i class="fas fa-user-tie"></i>
+                        <span><strong>HR Professional:</strong> {{ booking.hr.full_name }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-calendar"></i>
+                        <span><strong>Date:</strong> {{ booking.time_slot.date|date:"l, F j, Y" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Time:</strong> {{ booking.time_slot.start_time|time:"g:i A" }} - {{ booking.time_slot.end_time|time:"g:i A" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-briefcase"></i>
+                        <span><strong>Designation:</strong> {{ booking.designation }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <span><strong>HR Email:</strong> {{ booking.hr.email }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-stopwatch"></i>
+                        <span><strong>Duration:</strong> 30 minutes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="meeting-info">
+                <h3><i class="fas fa-video"></i> Jitsi Meet Details</h3>
+                <div class="meeting-details">
+                    <div class="meeting-detail">
+                        <h4>Meeting ID</h4>
+                        <p>{{ booking.meeting_id }}</p>
+                    </div>
+                    <div class="meeting-detail">
+                        <h4>Meeting Password</h4>
+                        <p>{{ booking.meeting_password }}</p>
+                    </div>
+                    <div class="meeting-detail">
+                        <h4>Meeting URL</h4>
+                        <p style="word-break: break-all; font-size: 0.9rem;">{{ booking.meeting_url }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h3><i class="fas fa-lightbulb"></i> Important Instructions</h3>
+                <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <h4 style="color: #1565c0; margin-bottom: 0.5rem;"><i class="fas fa-video"></i> How the Meeting Works:</h4>
+                    <ul style="color: #1976d2; margin: 0; padding-left: 1.5rem;">
+                        <li><strong>HR Starts First:</strong> The HR professional will join the meeting first to start the conference</li>
+                        <li><strong>No Waiting:</strong> Once HR joins, you can enter immediately without any authentication</li>
+                        <li><strong>Meeting Access:</strong> Available 15 minutes before scheduled time</li>
+                        <li><strong>Browser-Based:</strong> No software installation required - works in your web browser</li>
+                    </ul>
+                </div>
+                <ul>
+                    <li><strong>Join 5 minutes early:</strong> Be ready to join the meeting 5 minutes before the scheduled time.</li>
+                    <li><strong>Test your equipment:</strong> Ensure your camera, microphone, and internet connection are working properly.</li>
+                    <li><strong>Quiet environment:</strong> Find a quiet place with good lighting for the interview.</li>
+                    <li><strong>Have your resume ready:</strong> Keep your resume and any relevant documents handy.</li>
+                    <li><strong>Professional attire:</strong> Dress professionally as you would for an in-person interview.</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="{% url 'hr_interview_history' %}" class="join-btn">
+                    <i class="fas fa-calendar-alt"></i> View My Bookings
+                </a>
+                <a href="{% url 'candidate_dashboard' %}" class="dashboard-btn">
+                    <i class="fas fa-home"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewBookingsBtn = document.querySelector('.join-btn');
+            const dashboardBtn = document.querySelector('.dashboard-btn');
+            
+            viewBookingsBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            viewBookingsBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+            
+            dashboardBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            dashboardBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Designation - Resume Builder</title>
+    <link rel="stylesheet" href="{% static 'css/designation-form.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <div class="header">
+                <div class="icon-wrapper">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h2 class="form-title">Select Your Designation</h2>
+                <p class="form-subtitle">Choose your professional designation for {{ field }} Resume</p>
+            </div>
+
+            <form method="post" class="designation-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    {% for field in form %}
+                        <div class="field-wrapper">
+                            <label for="{{ field.id_for_label }}" class="field-label">
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="required">*</span>
+                                {% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="help-text">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="error-messages">
+                                    {% for error in field.errors %}
+                                        <span class="error-text">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ error }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-check-circle"></i>
+                    Confirm Designation
+                </button>
+            </form>
+
+            <div class="footer-note">
+                <i class="fas fa-info-circle"></i>
+                <span>This designation will be used throughout your resume template</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.designation-form');
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            form.addEventListener('submit', function(e) {
+                submitBtn.classList.add('loading');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            });
+        });
+    </script>
+</body>
+</html>

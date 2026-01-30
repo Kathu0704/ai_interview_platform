@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AI Mock Interview Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .welcome-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .welcome-section h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-section p {
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .action-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-card p {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .recent-activity {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+        }
+
+        .recent-activity h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .activity-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-text {
+            color: #666;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🔐 Admin Dashboard</h1>
+        <div class="user-info">
+            <span>Welcome, {{ admin_name }}</span>
+            <a href="{% url 'admin_logout' %}" class="logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h2>Welcome back, {{ admin_name }}! 👋</h2>
+            <p>Here's an overview of your AI Mock Interview Platform</p>
+        </div>
+
+        <div class="stats-grid">
+            <a href="{% url 'manage_candidates' %}" style="text-decoration:none;color:inherit">
+                <div class="stat-card">
+                    <div class="icon">👥</div>
+                    <div class="number">{{ total_candidates }}</div>
+                    <div class="label">Total Candidates</div>
+                </div>
+            </a>
+            <div class="stat-card">
+                <div class="icon">📊</div>
+                <div class="number">{{ ai_interviews_conducted }}</div>
+                <div class="label">AI Interviews Conducted</div>
+            </div>
+            <a href="{% url 'manage_hr' %}" style="text-decoration:none;color:inherit">
+                <div class="stat-card">
+                    <div class="icon">👨‍💼</div>
+                    <div class="number">{{ total_hrs }}</div>
+                    <div class="label">Total HRs</div>
+                </div>
+            </a>
+            <div class="stat-card">
+                <div class="icon">🎯</div>
+                <div class="number">{{ hr_interviews_conducted }}</div>
+                <div class="label">HR Interviews Conducted</div>
+            </div>
+        </div>
+
+        <div class="actions-grid">
+            <div class="action-card">
+                <h3>👥 Manage Candidates</h3>
+                <p>View and manage all candidate profiles, resumes, and interview history.</p>
+                <a class="action-btn" href="{% url 'manage_candidates' %}">View Candidates</a>
+            </div>
+            
+            <div class="action-card">
+                <h3>👨‍💼 HR Registration</h3>
+                <p>Register new HR users and create accounts for HR professionals.</p>
+                <a href="{% url 'hr_registration' %}" class="action-btn">Register HR</a>
+            </div>
+            
+            <div class="action-card">
+                <h3>🔧 Manage HR</h3>
+                <p>View, edit, and manage existing HR accounts and their permissions.</p>
+                <a class="action-btn" href="{% url 'manage_hr' %}">Manage HR</a>
+            </div>
+            
+            <div class="action-card">
+                <h3>📊 Interview Analytics</h3>
+                <p>Analyze interview performance, success rates, and platform usage statistics.</p>
+                <a class="action-btn" href="{% url 'admin_analytics' %}">View Analytics</a>
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <h3>📋 Recent Activity</h3>
+            <div class="activity-item">
+                <span class="activity-text">Recent HRs</span>
+                <span class="activity-time"></span>
+            </div>
+            {% for hr in recent_hrs %}
+            <div class="activity-item">
+                <span class="activity-text">HR: {{ hr.full_name }} ({{ hr.email }})</span>
+                <span class="activity-time">{{ hr.created_at|date:"Y-m-d H:i" }}</span>
+            </div>
+            {% empty %}
+            <div class="activity-item"><span class="activity-text">No HRs yet.</span></div>
+            {% endfor %}
+
+            <div class="activity-item" style="margin-top:1rem;">
+                <span class="activity-text">Recent Candidates</span>
+                <span class="activity-time"></span>
+            </div>
+            {% for c in recent_candidates %}
+            <div class="activity-item">
+                <span class="activity-text">Candidate: {{ c.user.email }}{% if c.designation %} - {{ c.designation }}{% endif %}</span>
+                <span class="activity-time">{{ c.user.date_joined|date:"Y-m-d H:i" }}</span>
+            </div>
+            {% empty %}
+            <div class="activity-item"><span class="activity-text">No candidates yet.</span></div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

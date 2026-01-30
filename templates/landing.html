@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="UTF-8">
+  <title>AI Mock Interview Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/ai_mock_landing.css' %}">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    
+    <div class="container">
+        <div class="landing-card">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <h1>AI Mock Interview Platform</h1>
+                <p class="subtitle">Master your interview skills with AI-powered practice sessions and personalized feedback</p>
+            </div>
+
+            <div class="login-buttons">
+                <a href="/candidate/login/" class="login-btn candidate-btn">
+                    <span class="btn-icon">👤</span>
+                    Candidate Portal
+                </a>
+                <a href="/hr/login/" class="login-btn hr-btn">
+                    <span class="btn-icon">💼</span>
+                    HR Dashboard
+                </a>
+                <a href="/adminpanel/login/" class="login-btn admin-btn">
+                    <span class="btn-icon">⚙️</span>
+                    Admin Panel
+                </a>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered</h3>
+                    <p>Advanced algorithms for realistic interview simulation</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics</h3>
+                    <p>Detailed performance metrics and improvement insights</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure</h3>
+                    <p>Enterprise-grade security for all your interview data</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

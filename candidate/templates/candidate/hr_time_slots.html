@@ -1,0 +1,574 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Time Slots - AI Mock Interview Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-link:hover {
+            background: rgba(44, 62, 80, 1);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            padding: 3rem;
+            background: #fafbfc;
+        }
+
+        .hr-info {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid #e8ecef;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hr-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .hr-info h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .hr-info h3 i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .hr-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .hr-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #4a5568;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .hr-detail:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .hr-detail i {
+            color: #667eea;
+            width: 24px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .hr-detail strong {
+            color: #2d3748;
+        }
+
+        .slots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .date-group {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .date-group:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .date-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.25rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        .date-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+        }
+
+        .time-slots {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .time-slot {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .time-slot:hover::before {
+            left: 100%;
+        }
+
+        .time-slot:hover {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4 0%, #f8fff9 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.2);
+        }
+
+        .time-slot.booked {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-color: #fc8181;
+            color: #742a2a;
+            cursor: not-allowed;
+        }
+
+        .time-slot.booked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .slot-time {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .slot-duration {
+            font-size: 1rem;
+            color: #718096;
+            margin-bottom: 1rem;
+        }
+
+        .book-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .book-btn:hover::before {
+            left: 100%;
+        }
+
+        .book-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+        }
+
+        .book-btn:disabled {
+            background: linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .no-slots {
+            text-align: center;
+            padding: 4rem;
+            color: #718096;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .no-slots i {
+            font-size: 5rem;
+            color: #cbd5e0;
+            margin-bottom: 1.5rem;
+        }
+
+        .no-slots h3 {
+            font-size: 1.8rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .no-slots p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1.25rem 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            color: #276749;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .alert::before {
+            content: '\f06a';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .alert-success::before {
+            content: '\f058';
+            color: #38a169;
+        }
+
+        .alert-error::before {
+            content: '\f071';
+            color: #e53e3e;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .content {
+                padding: 2rem 1.5rem;
+            }
+            
+            .slots-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .hr-details {
+                grid-template-columns: 1fr;
+            }
+
+            .hr-info {
+                padding: 1.5rem;
+            }
+
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <a href="{% url 'hr_interview_booking' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to HR Selection
+    </a>
+
+    <div class="container fade-in">
+        <div class="header">
+            <h1><i class="fas fa-clock"></i> Available Time Slots</h1>
+            <p>Select a time slot for your interview with {{ hr.full_name }}</p>
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="hr-info">
+                <h3><i class="fas fa-user-tie"></i> HR Professional Details</h3>
+                <div class="hr-details">
+                    <div class="hr-detail">
+                        <i class="fas fa-user"></i>
+                        <span><strong>Name:</strong> {{ hr.full_name }}</span>
+                    </div>
+                    <div class="hr-detail">
+                        <i class="fas fa-envelope"></i>
+                        <span><strong>Email:</strong> {{ hr.email }}</span>
+                    </div>
+                    <div class="hr-detail">
+                        <i class="fas fa-briefcase"></i>
+                        <span><strong>Field:</strong> {{ hr.field_of_expertise }}</span>
+                    </div>
+                    <div class="hr-detail">
+                        <i class="fas fa-calendar"></i>
+                        <span><strong>Experience:</strong> {{ hr.years_of_experience }} years</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if available_slots %}
+                <div class="slots-container">
+                    {% regroup available_slots by date as date_list %}
+                    {% for date in date_list %}
+                        {% if date.grouper > today %}
+                        <div class="date-group">
+                            <div class="date-header">
+                                {{ date.grouper|date:"l, F j, Y" }}
+                            </div>
+                            <div class="time-slots">
+                                {% for slot in date.list %}
+                                    <div class="time-slot">
+                                        <div class="slot-time">{{ slot.safe_time_display }}</div>
+                                        <div class="slot-duration">30 minutes</div>
+                                        <a href="{% url 'book_hr_interview' hr.id slot.id %}" class="book-btn">
+                                            <i class="fas fa-calendar-plus"></i> Book This Slot
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% elif date.grouper == today %}
+                            {# For today, render only if any slots remain after filtering (already filtered server-side) #}
+                            {% if date.list %}
+                            <div class="date-group">
+                                <div class="date-header">
+                                    Today ({{ date.grouper|date:"l, F j, Y" }})
+                                </div>
+                                <div class="time-slots">
+                                    {% for slot in date.list %}
+                                        <div class="time-slot">
+                                            <div class="slot-time">{{ slot.safe_time_display }}</div>
+                                            <div class="slot-duration">30 minutes</div>
+                                            <a href="{% url 'book_hr_interview' hr.id slot.id %}" class="book-btn">
+                                                <i class="fas fa-calendar-plus"></i> Book This Slot
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-slots">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No Available Time Slots</h3>
+                    <p>Currently, there are no available time slots for {{ hr.full_name }}.</p>
+                    <p>Please check back later or select a different HR professional.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Add hover effects and animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeSlots = document.querySelectorAll('.time-slot:not(.booked)');
+            const dateGroups = document.querySelectorAll('.date-group');
+            
+            // Animate date groups on load
+            dateGroups.forEach((group, index) => {
+                setTimeout(() => {
+                    group.style.opacity = '0';
+                    group.style.transform = 'translateY(30px)';
+                    group.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        group.style.opacity = '1';
+                        group.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+            
+            timeSlots.forEach(slot => {
+                slot.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                });
+                
+                slot.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

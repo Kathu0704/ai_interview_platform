@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit HR - Admin Panel</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f5f7fa; margin: 0; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .container { max-width: 800px; margin: 2rem auto; background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+        .form-row { display:grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display:block; font-weight:600; margin-bottom: .4rem; }
+        .form-control { width:100%; padding:.6rem .75rem; border:1px solid #e5e7eb; border-radius:8px; }
+        .help { color:#6b7280; font-size: .85rem; margin-top: .25rem; }
+        .btn { display:inline-block; padding:.6rem 1rem; border-radius:8px; text-decoration:none; border:none; cursor:pointer; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; }
+        .btn-ghost { background:#f3f4f6; color:#374151; }
+        .actions { display:flex; gap:.5rem; margin-top: 1rem; }
+        .chip { display:inline-block; background:#f3f4f6; padding:.3rem .6rem; border-radius:999px; margin:.15rem; }
+        .readonly { background:#f9fafb; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div>✏️ Edit HR</div>
+        <div>Welcome, {{ admin_name }}</div>
+    </div>
+    <div class="container">
+        <a class="btn btn-ghost" href="{% url 'manage_hr' %}">← Back to Manage HR</a>
+        <h2 style="margin: .75rem 0 1rem;">{{ hr.full_name }} ({{ hr.email }})</h2>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>First Name</label>
+                <input class="form-control readonly" value="{{ hr.first_name }}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <input class="form-control readonly" value="{{ hr.last_name }}" readonly>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email</label>
+                <input class="form-control readonly" value="{{ hr.email }}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input class="form-control readonly" value="{{ hr.username }}" readonly>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Gender</label>
+                <input class="form-control readonly" value="{{ hr.get_gender_display }}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Field of Expertise</label>
+                <input class="form-control readonly" value="{{ hr.field_of_expertise }}" readonly>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_phone_number">Phone Number</label>
+                    {{ form.phone_number }}
+                </div>
+                <div class="form-group">
+                    <label for="id_date_of_birth">Date of Birth</label>
+                    {{ form.date_of_birth }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_years_of_experience">Years of Experience</label>
+                    {{ form.years_of_experience }}
+                </div>
+                <div class="form-group">
+                    <label for="id_specialization_skills">Specialization & Skills</label>
+                    {{ form.specialization_skills }}
+                    <div class="help">Comma-separated skills or short paragraph.</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Designations Handled</label>
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.35rem 1rem; padding:.5rem .75rem; border:1px solid #e5e7eb; border-radius:8px; max-height: 260px; overflow:auto;">
+                    {{ form.designations_handled }}
+                </div>
+                <div class="help">Options limited by HR field (IT / Non-IT).</div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">Save Changes</button>
+                <a class="btn btn-ghost" href="{% url 'manage_hr' %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+
+

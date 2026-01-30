@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+{% if user.is_authenticated %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/candidate_dashboard.css' %}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <div class="header-top">
+                <div class="welcome-section">
+                    <h2 class="welcome-title">Welcome {{ profile.name }}</h2>
+                    <p class="welcome-subtitle">Ready to ace your next interview? Let's get started!</p>
+                </div>
+                <div class="logout-section">
+                    <a href="{% url 'logout' %}" class="logout-btn">
+                        <span class="logout-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <div class="profile-card">
+                    <div class="profile-label">Resume Field</div>
+                    <div class="profile-value">{{ profile.field }}</div>
+                </div>
+                {% if profile.designation %}
+                <div class="profile-card">
+                    <div class="profile-label">Current Designation</div>
+                    <div class="profile-value">{{ profile.designation }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'upload_resume' %}" class="btn btn-secondary">
+                    <span class="btn-icon">📄</span>
+                    Upload / Re-upload Resume
+                </a>
+                
+                {% if profile.designation %}
+                    <a href="{% url 'select_designation' %}" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span>
+                        Change Designation
+                    </a>
+                    
+                    <form action="{% url 'ai_interview' %}" method="get" style="display: inline;">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-icon">🤖</span>
+                            Start AI Interview
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- History Section -->
+        <div class="history-container">
+            <!-- AI Interview History -->
+            <div class="history-column">
+                <h3 class="history-title">AI-Based Interview History</h3>
+                <div class="history-scroll">
+                    {% if ai_records %}
+                        {% for record in ai_records %}
+                            <div class="interview-card">
+                                <div class="interview-detail">
+                                    <strong>Date:</strong> {{ record.created_at|date:'Y-m-d' }}
+                                </div>
+                                <div class="interview-detail">
+                                    <strong>Role:</strong> {{ record.role }}
+                                </div>
+                                <div class="interview-detail">
+                                    <strong>Designation:</strong> {{ record.designation }}
+                                </div>
+                                <div class="interview-detail">
+                                    <strong>Score:</strong> 
+                                    <span class="score-display">
+                                        {{ record.average }}/5 ⭐
+                                    </span>
+                                </div>
+                                <a href="{% url 'view_ai_evaluation_db' record.id %}"
+                                   class="view-evaluation-btn">
+                                    📊 View Full Evaluation
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-interviews">
+                            <p>No AI interviews completed yet. Start your first interview above! 🚀</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- HR Video Interview History -->
+            <div class="history-column">
+                <h3 class="history-title">HR Video Interview Management</h3>
+                <div class="history-scroll">
+                    {% if profile.designation %}
+                        <div class="hr-interview-actions">
+                            <a href="{% url 'hr_interview_role_selection' %}" class="btn btn-primary" style="width: 100%; margin-bottom: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                                <span class="btn-icon">📅</span>
+                                Book New HR Interview
+                            </a>
+                            <a href="{% url 'upcoming_hr_interviews' %}" class="btn btn-secondary" style="width: 100%; margin-bottom: 15px;">
+                                <span class="btn-icon">📋</span>
+                                View My Bookings
+                            </a>
+                            <a href="{% url 'hr_interview_history' %}" class="btn btn-info" style="width: 100%; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                                <span class="btn-icon">📊</span>
+                                HR Video Interview History
+                            </a>
+                        </div>
+                        
+                        <div class="info-box" style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 10px; padding: 15px; margin-top: 15px; color: #1565c0;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>HR Video Interviews:</strong><br>
+                            • 30-minute sessions with real HR professionals<br>
+                            • Jitsi Meet video integration<br>
+                            • Available 9 AM - 5 PM<br>
+                            • No score requirements - book anytime!
+                        </div>
+                    {% else %}
+                        <div class="no-interviews">
+                            <p>Please select your designation first to book HR interviews.</p>
+                            <a href="{% url 'select_designation' %}" class="btn btn-primary" style="margin-top: 10px;">
+                                Select Designation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+{% else %}
+    <body>
+        <p>You are not logged in. <a href="{% url 'login' %}">Login here</a>.</p>
+    </body>
+{% endif %}
+</html>

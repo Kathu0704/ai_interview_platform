@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Analytics - Admin Panel</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f5f7fa; margin:0; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .container { max-width: 1100px; margin: 2rem auto; background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+        .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; }
+        .card { background:#fff; border:1px solid #eee; border-radius:10px; padding:1rem; }
+        .title { font-weight:700; font-size:1rem; margin-bottom:.5rem; }
+        table { width:100%; border-collapse: collapse; }
+        th, td { text-align:left; padding:10px; border-bottom:1px solid #eee; }
+        th { background:#fafbff; }
+        .pill { padding: 4px 10px; border-radius: 999px; font-size: 12px; background:#eef2ff; color:#3730a3; }
+        a.btn { display:inline-block; padding:8px 12px; background:#f3f4f6; border-radius:8px; text-decoration:none; color:#374151; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div>📊 Interview Analytics</div>
+        <div>Welcome, {{ admin_name }}</div>
+    </div>
+    <div class="container">
+        <div style="display:flex; gap:.5rem; margin-bottom:1rem;">
+            <a class="btn" href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <div class="title">Total AI Interviews</div>
+                <div style="font-size:2rem; font-weight:800; color:#667eea;">{{ total_interviews }}</div>
+            </div>
+            <div class="card">
+                <div class="title">Average Score</div>
+                <div style="font-size:2rem; font-weight:800; color:#10b981;">{{ avg_score }}</div>
+            </div>
+            <div class="card">
+                <div class="title">Top Designations</div>
+                {% if top_designations %}
+                <table>
+                    <thead><tr><th>Designation</th><th>Total</th></tr></thead>
+                    <tbody>
+                        {% for row in top_designations %}
+                        <tr><td>{{ row.designation|default:'-' }}</td><td>{{ row.total }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div>No data yet.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:1rem;">
+            <div class="title">Recent Interviews</div>
+            {% if recent %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Candidate</th>
+                        <th>Role</th>
+                        <th>Designation</th>
+                        <th>Average</th>
+                        <th>Answered</th>
+                        <th>Skipped</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in recent %}
+                    <tr>
+                        <td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ r.candidate.email }}</td>
+                        <td>{{ r.role }}</td>
+                        <td><span class="pill">{{ r.designation }}</span></td>
+                        <td>{{ r.average }}</td>
+                        <td>{{ r.answered_questions }}</td>
+                        <td>{{ r.skipped_questions }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div>No recent interviews.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Give Interview Feedback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background:#f8f9fa; color:#333; margin:0; padding:0; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .navbar a { color:#fff; text-decoration:none; margin-left:1rem; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background:#fff; border-radius:12px; padding:2rem; margin-bottom:1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .form-group { margin-bottom:1.5rem; }
+        .form-group label { display:block; margin-bottom:0.5rem; font-weight:500; color:#333; }
+        .form-group input, .form-group select, .form-group textarea { width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:6px; font-size:14px; }
+        .form-group textarea { min-height:100px; resize:vertical; }
+        .rating-group { display:flex; gap:1rem; align-items:center; }
+        .rating-group select { width:80px; }
+        .criteria-grid { display:grid; grid-template-columns: 1fr; gap:1rem; }
+        .criteria-item { background:#f8f9fa; padding:1rem; border-radius:8px; border-left:4px solid #667eea; }
+        .criteria-item h4 { margin:0 0 0.5rem 0; color:#333; }
+        .criteria-item p { margin:0; color:#666; font-size:0.9rem; }
+        .btn { background: #667eea; color:#fff; border:none; padding:0.75rem 1.5rem; border-radius:6px; cursor:pointer; font-size:14px; text-decoration:none; display:inline-block; }
+        .btn:hover { background: #5a6fd8; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .candidate-info { background:#e3f2fd; padding:1rem; border-radius:8px; margin-bottom:1.5rem; }
+        .candidate-info h3 { margin:0 0 0.5rem 0; color:#1565c0; }
+        .candidate-info p { margin:0; color:#666; }
+        .help-text { font-size:0.8rem; color:#666; margin-top:0.25rem; }
+        .required { color:#e74c3c; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div><i class="fas fa-comment-dots"></i> Give Interview Feedback</div>
+        <div>
+            <a href="{% url 'hr_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'hr_manage_interviews' %}"><i class="fas fa-list"></i> Manage Interviews</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2 style="margin-top:0; color:#333;">Interview Feedback Form</h2>
+            
+            <!-- Candidate Information -->
+            <div class="candidate-info">
+                <h3><i class="fas fa-user"></i> Candidate Information</h3>
+                <p><strong>Name:</strong> {% if profile and profile.name %}{{ profile.name }}{% elif booking.candidate.get_full_name %}{{ booking.candidate.get_full_name }}{% else %}{{ booking.candidate.username }}{% endif %}</p>
+                <p><strong>Email:</strong> {{ booking.candidate.email }}</p>
+                <p><strong>Designation:</strong> {{ booking.designation }}</p>
+                <p><strong>Interview Date:</strong> {{ booking.time_slot.date|date:"M d, Y" }}</p>
+                <p><strong>Interview Time:</strong> {{ booking.time_slot.start_time|time:"g:i A" }} - {{ booking.time_slot.end_time|time:"g:i A" }}</p>
+                {% if profile %}
+                <p><strong>Field:</strong> {{ profile.field }}</p>
+                {% endif %}
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Evaluation Criteria -->
+                <h3 style="color:#333; margin-bottom:1rem;"><i class="fas fa-star"></i> Evaluation Criteria (Rate 1-5)</h3>
+                <div class="criteria-grid">
+                    <div class="criteria-item">
+                        <h4>Relevance and Clarity <span class="required">*</span></h4>
+                        <p>How well the candidate addressed the question and communicated ideas clearly</p>
+                        <div class="rating-group">
+                            <select name="relevance_clarity" required>
+                                <option value="">Select</option>
+                                <option value="1">1 - Completely irrelevant or incomprehensible</option>
+                                <option value="2">2 - Mostly off-topic or very unclear</option>
+                                <option value="3">3 - Somewhat relevant but lacks clarity</option>
+                                <option value="4">4 - Relevant and mostly clear</option>
+                                <option value="5">5 - Directly addresses question with excellent clarity</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <h4>Technical Knowledge <span class="required">*</span></h4>
+                        <p>Demonstration of role-specific technical skills and knowledge</p>
+                        <div class="rating-group">
+                            <select name="technical_knowledge" required>
+                                <option value="">Select</option>
+                                <option value="1">1 - No technical knowledge demonstrated</option>
+                                <option value="2">2 - Very basic or incorrect technical understanding</option>
+                                <option value="3">3 - Some technical knowledge but with gaps</option>
+                                <option value="4">4 - Good technical knowledge with minor gaps</option>
+                                <option value="5">5 - Excellent technical knowledge and understanding</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <h4>Communication Skills <span class="required">*</span></h4>
+                        <p>Ability to articulate thoughts clearly and professionally</p>
+                        <div class="rating-group">
+                            <select name="communication_skills" required>
+                                <option value="">Select</option>
+                                <option value="1">1 - Poor communication, difficult to understand</option>
+                                <option value="2">2 - Basic communication with many issues</option>
+                                <option value="3">3 - Adequate communication with some issues</option>
+                                <option value="4">4 - Good communication with minor issues</option>
+                                <option value="5">5 - Excellent communication skills</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <h4>Problem-Solving Approach <span class="required">*</span></h4>
+                        <p>Logical thinking and systematic approach to problems</p>
+                        <div class="rating-group">
+                            <select name="problem_solving" required>
+                                <option value="">Select</option>
+                                <option value="1">1 - No logical approach or problem-solving skills</option>
+                                <option value="2">2 - Weak problem-solving approach</option>
+                                <option value="3">3 - Some logical thinking but incomplete approach</option>
+                                <option value="4">4 - Good problem-solving approach</option>
+                                <option value="5">5 - Excellent systematic problem-solving approach</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="criteria-item">
+                        <h4>Experience and Examples <span class="required">*</span></h4>
+                        <p>Use of relevant examples and practical experience</p>
+                        <div class="rating-group">
+                            <select name="experience_examples" required>
+                                <option value="">Select</option>
+                                <option value="1">1 - No examples or relevant experience mentioned</option>
+                                <option value="2">2 - Very few or irrelevant examples</option>
+                                <option value="3">3 - Some examples but not very relevant</option>
+                                <option value="4">4 - Good examples with relevant experience</option>
+                                <option value="5">5 - Excellent examples with rich relevant experience</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Feedback -->
+                <div class="form-group">
+                    <label for="strengths">Strengths <span class="required">*</span></label>
+                    <textarea name="strengths" id="strengths" placeholder="List the candidate's key strengths (separate with commas)" required></textarea>
+                    <div class="help-text">Example: Strong technical knowledge, Clear communication, Good problem-solving approach</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="areas_for_improvement">Areas for Improvement <span class="required">*</span></label>
+                    <textarea name="areas_for_improvement" id="areas_for_improvement" placeholder="List areas where the candidate can improve (separate with commas)" required></textarea>
+                    <div class="help-text">Example: More specific examples, Better time management, Enhanced technical depth</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="detailed_feedback">Detailed Feedback <span class="required">*</span></label>
+                    <textarea name="detailed_feedback" id="detailed_feedback" placeholder="Provide comprehensive feedback explaining your evaluation" required></textarea>
+                    <div class="help-text">Give detailed feedback explaining your ratings and observations</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="recommendation">Recommendation <span class="required">*</span></label>
+                    <textarea name="recommendation" id="recommendation" placeholder="Brief recommendation for this candidate" required></textarea>
+                    <div class="help-text">Provide your overall recommendation (e.g., Strong candidate, Needs improvement, Not suitable)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="additional_notes">Additional Notes</label>
+                    <textarea name="additional_notes" id="additional_notes" placeholder="Any additional observations or notes"></textarea>
+                    <div class="help-text">Optional: Any additional notes or observations about the interview</div>
+                </div>
+
+                <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:2rem;">
+                    <a href="{% url 'hr_manage_interviews' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

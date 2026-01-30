@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Role & Designation - HR Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-box h3 {
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .current-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .current-info h4 {
+            color: #1565c0;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-info p {
+            color: #1976d2;
+            font-size: 0.9rem;
+        }
+
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .field-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .field-option {
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+        }
+
+        .field-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .field-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .field-option input[type="radio"] {
+            display: none;
+        }
+
+        .field-option i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .designation-input {
+            display: none;
+        }
+
+        .designation-input.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                margin: 0;
+            }
+
+            .header {
+                padding: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            .field-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{% url 'candidate_dashboard' %}" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+            <h1><i class="fas fa-user-tie"></i> HR Interview Setup</h1>
+            <p>Select your role and designation for the HR interview</p>
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if profile.field and profile.designation %}
+            <div class="current-info">
+                <h4><i class="fas fa-info-circle"></i> Current Profile</h4>
+                <p><strong>Field:</strong> {{ profile.field }}</p>
+                <p><strong>Designation:</strong> {{ profile.designation }}</p>
+            </div>
+            {% endif %}
+
+            <div class="info-box">
+                <h3><i class="fas fa-lightbulb"></i> Why Update Role & Designation?</h3>
+                <p>• Ensure HR professionals match your specific role requirements</p>
+                <p>• Get more relevant interview questions and feedback</p>
+                <p>• Better alignment with your career goals</p>
+                <p>• You can always change this later from your dashboard</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="field">Your Field</label>
+                    <div class="field-options" style="pointer-events: none; opacity: 0.7;">
+                        <label class="field-option {% if profile.field == 'IT' %}selected{% endif %}" for="field_it">
+                            <input type="radio" id="field_it" name="field" value="IT" {% if profile.field == 'IT' %}checked{% endif %} disabled>
+                            <i class="fas fa-laptop-code"></i>
+                            <strong>IT</strong>
+                            <small>Technology & Software</small>
+                        </label>
+                        <label class="field-option {% if profile.field == 'Non-IT' %}selected{% endif %}" for="field_non_it">
+                            <input type="radio" id="field_non_it" name="field" value="Non-IT" {% if profile.field == 'Non-IT' %}checked{% endif %} disabled>
+                            <i class="fas fa-briefcase"></i>
+                            <strong>Non-IT</strong>
+                            <small>Business & Operations</small>
+                        </label>
+                    </div>
+                    <small style="color:#666; display:block; margin-top:6px;">Field is locked to your resume-detected field.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="designation">Your Designation/Role *</label>
+                    <select id="designation" name="designation" class="form-control" required>
+                        <option value="">Select your designation</option>
+                        <optgroup id="opt_it" label="IT & Technology" data-field="IT">
+                            <option value="Software Developer" {% if profile.designation == 'Software Developer' %}selected{% endif %}>Software Developer</option>
+                            <option value="Java Developer" {% if profile.designation == 'Java Developer' %}selected{% endif %}>Java Developer</option>
+                            <option value="Python Developer" {% if profile.designation == 'Python Developer' %}selected{% endif %}>Python Developer</option>
+                            <option value="Frontend Developer" {% if profile.designation == 'Frontend Developer' %}selected{% endif %}>Frontend Developer</option>
+                            <option value="Backend Developer" {% if profile.designation == 'Backend Developer' %}selected{% endif %}>Backend Developer</option>
+                            <option value="Full Stack Developer" {% if profile.designation == 'Full Stack Developer' %}selected{% endif %}>Full Stack Developer</option>
+                            <option value="DevOps Engineer" {% if profile.designation == 'DevOps Engineer' %}selected{% endif %}>DevOps Engineer</option>
+                            <option value="Data Scientist" {% if profile.designation == 'Data Scientist' %}selected{% endif %}>Data Scientist</option>
+                            <option value="Machine Learning Engineer" {% if profile.designation == 'Machine Learning Engineer' %}selected{% endif %}>Machine Learning Engineer</option>
+                            <option value="UI/UX Designer" {% if profile.designation == 'UI/UX Designer' %}selected{% endif %}>UI/UX Designer</option>
+                            <option value="QA Engineer" {% if profile.designation == 'QA Engineer' %}selected{% endif %}>QA Engineer</option>
+                            <option value="System Administrator" {% if profile.designation == 'System Administrator' %}selected{% endif %}>System Administrator</option>
+                            <option value="Database Administrator" {% if profile.designation == 'Database Administrator' %}selected{% endif %}>Database Administrator</option>
+                            <option value="Network Engineer" {% if profile.designation == 'Network Engineer' %}selected{% endif %}>Network Engineer</option>
+                            <option value="Cloud Engineer" {% if profile.designation == 'Cloud Engineer' %}selected{% endif %}>Cloud Engineer</option>
+                            <option value="Mobile Developer" {% if profile.designation == 'Mobile Developer' %}selected{% endif %}>Mobile Developer</option>
+                            <option value="React Developer" {% if profile.designation == 'React Developer' %}selected{% endif %}>React Developer</option>
+                            <option value="Angular Developer" {% if profile.designation == 'Angular Developer' %}selected{% endif %}>Angular Developer</option>
+                            <option value="Node.js Developer" {% if profile.designation == 'Node.js Developer' %}selected{% endif %}>Node.js Developer</option>
+                            <option value="PHP Developer" {% if profile.designation == 'PHP Developer' %}selected{% endif %}>PHP Developer</option>
+                        </optgroup>
+                        <optgroup id="opt_non_it" label="Business & Operations" data-field="Non-IT">
+                            <option value="Marketing Executive" {% if profile.designation == 'Marketing Executive' %}selected{% endif %}>Marketing Executive</option>
+                            <option value="HR Manager" {% if profile.designation == 'HR Manager' %}selected{% endif %}>HR Manager</option>
+                            <option value="Sales Executive" {% if profile.designation == 'Sales Executive' %}selected{% endif %}>Sales Executive</option>
+                            <option value="Business Analyst" {% if profile.designation == 'Business Analyst' %}selected{% endif %}>Business Analyst</option>
+                            <option value="Project Manager" {% if profile.designation == 'Project Manager' %}selected{% endif %}>Project Manager</option>
+                            <option value="Content Writer" {% if profile.designation == 'Content Writer' %}selected{% endif %}>Content Writer</option>
+                            <option value="Digital Marketing Specialist" {% if profile.designation == 'Digital Marketing Specialist' %}selected{% endif %}>Digital Marketing Specialist</option>
+                            <option value="SEO Specialist" {% if profile.designation == 'SEO Specialist' %}selected{% endif %}>SEO Specialist</option>
+                            <option value="Social Media Manager" {% if profile.designation == 'Social Media Manager' %}selected{% endif %}>Social Media Manager</option>
+                            <option value="Customer Service Representative" {% if profile.designation == 'Customer Service Representative' %}selected{% endif %}>Customer Service Representative</option>
+                            <option value="Account Manager" {% if profile.designation == 'Account Manager' %}selected{% endif %}>Account Manager</option>
+                            <option value="Operations Manager" {% if profile.designation == 'Operations Manager' %}selected{% endif %}>Operations Manager</option>
+                            <option value="Finance Manager" {% if profile.designation == 'Finance Manager' %}selected{% endif %}>Finance Manager</option>
+                            <option value="Administrative Assistant" {% if profile.designation == 'Administrative Assistant' %}selected{% endif %}>Administrative Assistant</option>
+                            <option value="Event Manager" {% if profile.designation == 'Event Manager' %}selected{% endif %}>Event Manager</option>
+                            <option value="Public Relations Officer" {% if profile.designation == 'Public Relations Officer' %}selected{% endif %}>Public Relations Officer</option>
+                            <option value="Brand Manager" {% if profile.designation == 'Brand Manager' %}selected{% endif %}>Brand Manager</option>
+                            <option value="Market Research Analyst" {% if profile.designation == 'Market Research Analyst' %}selected{% endif %}>Market Research Analyst</option>
+                            <option value="Business Development Executive" {% if profile.designation == 'Business Development Executive' %}selected{% endif %}>Business Development Executive</option>
+                            <option value="Product Manager" {% if profile.designation == 'Product Manager' %}selected{% endif %}>Product Manager</option>
+                        </optgroup>
+                    </select>
+                    <small style="color: #666; margin-top: 0.5rem; display: block;">
+                        Select your current or target job title/role from the list above
+                    </small>
+                </div>
+
+                <script>
+                (function(){
+                    function updateDesignationOptions() {
+                        const selectedField = document.querySelector('input[name="field"]:checked');
+                        const itGroup = document.getElementById('opt_it');
+                        const nonItGroup = document.getElementById('opt_non_it');
+                        if (!selectedField) return;
+                        if (selectedField.value === 'IT') {
+                            itGroup.style.display = '';
+                            nonItGroup.style.display = 'none';
+                        } else {
+                            itGroup.style.display = 'none';
+                            nonItGroup.style.display = '';
+                        }
+                        const select = document.getElementById('designation');
+                        // If current value is hidden, reset to placeholder
+                        if (select.value) {
+                            const visibleOptions = Array.from(select.querySelectorAll('optgroup[style=""] option'));
+                            const values = new Set(visibleOptions.map(o => o.value));
+                            if (!values.has(select.value)) {
+                                select.value = '';
+                            }
+                        }
+                    }
+                    // Field radios are disabled; still call on load to set correct group
+                    // Initialize on page load using current profile field if available
+                    updateDesignationOptions();
+                })();
+                </script>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i>
+                    Continue to HR Selection
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="{% url 'candidate_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize selected state on page load
+        document.querySelectorAll('.field-option input[type="radio"]:checked').forEach(radio => {
+            radio.closest('.field-option').classList.add('selected');
+        });
+    </script>
+</body>
+</html>

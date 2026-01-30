@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Interviews Conducted</title>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<style>
+		body { font-family: 'Poppins', sans-serif; background:#f8f9fa; color:#333; }
+		.navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding:1rem 2rem; display:flex; justify-content:space-between; }
+		.navbar a { color:#fff; text-decoration:none; margin-left:1rem; }
+		.container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+		.card { background:#fff; border-radius:12px; padding:1rem; margin-bottom:1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+		.row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+		.item { min-width: 200px; }
+		.badge { padding:6px 12px; border-radius:16px; background:#28a745; color:#fff; font-size:0.8rem; }
+	</style>
+</head>
+<body>
+	<nav class="navbar">
+		<div>Interviews Conducted</div>
+		<div>
+			<a href="{% url 'hr_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+		</div>
+	</nav>
+	<div class="container">
+		{% if bookings %}
+			{% for item in bookings %}
+				<div class="card">
+					<div class="row">
+						<div class="item"><strong>Candidate Name:</strong> {{ item.display_name }}</div>
+						<div class="item"><strong>Date:</strong> {{ item.booking.time_slot.date|date:"M d, Y" }}</div>
+						<div class="item">
+							{% if item.booking.status == 'completed' %}
+								<span class="badge" style="background:#28a745;"><i class="fas fa-check"></i> Completed</span>
+							{% elif item.booking.status == 'scheduled' %}
+								<span class="badge" style="background:#17a2b8;"><i class="fas fa-clock"></i> Scheduled</span>
+							{% elif item.booking.status == 'no_show' %}
+								<span class="badge" style="background:#6c757d;"><i class="fas fa-user-slash"></i> No Show</span>
+							{% elif item.booking.status == 'cancelled' %}
+								<span class="badge" style="background:#dc3545;"><i class="fas fa-times"></i> Cancelled</span>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		{% else %}
+			<p>No interviews conducted yet.</p>
+		{% endif %}
+	</div>
+</body>
+</html>

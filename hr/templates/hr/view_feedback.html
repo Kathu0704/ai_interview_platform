@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Interview Feedback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background:#f8f9fa; color:#333; margin:0; padding:0; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .navbar a { color:#fff; text-decoration:none; margin-left:1rem; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background:#fff; border-radius:12px; padding:2rem; margin-bottom:1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .candidate-info { background:#e3f2fd; padding:1rem; border-radius:8px; margin-bottom:1.5rem; }
+        .candidate-info h3 { margin:0 0 0.5rem 0; color:#1565c0; }
+        .candidate-info p { margin:0; color:#666; }
+        .score-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem; margin:1.5rem 0; }
+        .score-item { background:#f8f9fa; padding:1rem; border-radius:8px; text-align:center; border-left:4px solid #667eea; }
+        .score-item h4 { margin:0 0 0.5rem 0; color:#333; font-size:0.9rem; }
+        .score-value { font-size:2rem; font-weight:bold; color:#667eea; }
+        .feedback-section { margin:1.5rem 0; }
+        .feedback-section h4 { color:#333; margin-bottom:0.5rem; }
+        .feedback-content { background:#f8f9fa; padding:1rem; border-radius:8px; border-left:4px solid #28a745; }
+        .strengths-list, .improvements-list { margin:0.5rem 0; }
+        .strengths-list li, .improvements-list li { margin:0.25rem 0; }
+        .reply-section { margin-top:2rem; padding-top:1.5rem; border-top:1px solid #eee; }
+        .reply-item { background:#f8f9fa; padding:1rem; border-radius:8px; margin:1rem 0; border-left:4px solid #17a2b8; }
+        .reply-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+        .reply-author { font-weight:500; color:#333; }
+        .reply-date { color:#666; font-size:0.9rem; }
+        .reply-content { color:#555; }
+        .btn { background: #667eea; color:#fff; border:none; padding:0.75rem 1.5rem; border-radius:6px; cursor:pointer; font-size:14px; text-decoration:none; display:inline-block; }
+        .btn:hover { background: #5a6fd8; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .overall-score { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding:1.5rem; border-radius:12px; text-align:center; margin:1.5rem 0; }
+        .overall-score h3 { margin:0 0 0.5rem 0; }
+        .overall-score .score { font-size:3rem; font-weight:bold; margin:0.5rem 0; }
+        .overall-score .score-text { font-size:1.1rem; opacity:0.9; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div><i class="fas fa-eye"></i> View Interview Feedback</div>
+        <div>
+            <a href="{% url 'hr_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'hr_manage_interviews' %}"><i class="fas fa-list"></i> Manage Interviews</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2 style="margin-top:0; color:#333;">Interview Feedback Details</h2>
+            
+            <!-- Candidate Information -->
+            <div class="candidate-info">
+                <h3><i class="fas fa-user"></i> Candidate Information</h3>
+                <p><strong>Name:</strong> {{ booking.candidate.get_full_name|default:booking.candidate.username }}</p>
+                <p><strong>Email:</strong> {{ booking.candidate.email }}</p>
+                <p><strong>Designation:</strong> {{ booking.designation }}</p>
+                <p><strong>Interview Date:</strong> {{ booking.time_slot.date|date:"M d, Y" }}</p>
+                <p><strong>Interview Time:</strong> {{ booking.time_slot.start_time|time:"g:i A" }} - {{ booking.time_slot.end_time|time:"g:i A" }}</p>
+                {% if profile %}
+                <p><strong>Field:</strong> {{ profile.field }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Overall Score -->
+            <div class="overall-score">
+                <h3>Overall Score</h3>
+                <div class="score">{{ feedback.overall_score|floatformat:1 }}/5.0</div>
+                <div class="score-text">
+                    {% if feedback.overall_score >= 4.0 %}
+                        Excellent Performance
+                    {% elif feedback.overall_score >= 3.0 %}
+                        Good Performance
+                    {% elif feedback.overall_score >= 2.0 %}
+                        Average Performance
+                    {% else %}
+                        Needs Improvement
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Individual Scores -->
+            <h3 style="color:#333; margin-bottom:1rem;"><i class="fas fa-star"></i> Detailed Scores</h3>
+            <div class="score-grid">
+                <div class="score-item">
+                    <h4>Relevance & Clarity</h4>
+                    <div class="score-value">{{ feedback.relevance_clarity }}/5</div>
+                </div>
+                <div class="score-item">
+                    <h4>Technical Knowledge</h4>
+                    <div class="score-value">{{ feedback.technical_knowledge }}/5</div>
+                </div>
+                <div class="score-item">
+                    <h4>Communication Skills</h4>
+                    <div class="score-value">{{ feedback.communication_skills }}/5</div>
+                </div>
+                <div class="score-item">
+                    <h4>Problem Solving</h4>
+                    <div class="score-value">{{ feedback.problem_solving }}/5</div>
+                </div>
+                <div class="score-item">
+                    <h4>Experience & Examples</h4>
+                    <div class="score-value">{{ feedback.experience_examples }}/5</div>
+                </div>
+            </div>
+
+            <!-- Strengths -->
+            <div class="feedback-section">
+                <h4><i class="fas fa-thumbs-up"></i> Strengths</h4>
+                <div class="feedback-content">
+                    {% if feedback.strengths %}
+                        <ul class="strengths-list">
+                            {% for strength in feedback.strengths %}
+                                <li>{{ strength }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No specific strengths mentioned.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Areas for Improvement -->
+            <div class="feedback-section">
+                <h4><i class="fas fa-chart-line"></i> Areas for Improvement</h4>
+                <div class="feedback-content">
+                    {% if feedback.areas_for_improvement %}
+                        <ul class="improvements-list">
+                            {% for improvement in feedback.areas_for_improvement %}
+                                <li>{{ improvement }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No specific areas for improvement mentioned.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Detailed Feedback -->
+            <div class="feedback-section">
+                <h4><i class="fas fa-comment-alt"></i> Detailed Feedback</h4>
+                <div class="feedback-content">
+                    {{ feedback.detailed_feedback|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Recommendation -->
+            <div class="feedback-section">
+                <h4><i class="fas fa-lightbulb"></i> Recommendation</h4>
+                <div class="feedback-content">
+                    {{ feedback.recommendation|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Additional Notes -->
+            {% if feedback.additional_notes %}
+            <div class="feedback-section">
+                <h4><i class="fas fa-sticky-note"></i> Additional Notes</h4>
+                <div class="feedback-content">
+                    {{ feedback.additional_notes|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Feedback Metadata -->
+            <div class="feedback-section">
+                <h4><i class="fas fa-info-circle"></i> Feedback Information</h4>
+                <div class="feedback-content">
+                    <p><strong>Submitted by:</strong> {{ feedback.hr.full_name }}</p>
+                    <p><strong>Submitted on:</strong> {{ feedback.created_at|date:"M d, Y g:i A" }}</p>
+                    {% if feedback.updated_at != feedback.created_at %}
+                        <p><strong>Last updated:</strong> {{ feedback.updated_at|date:"M d, Y g:i A" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Candidate Replies -->
+            {% if replies %}
+            <div class="reply-section">
+                <h4><i class="fas fa-reply"></i> Candidate Replies</h4>
+                {% for reply in replies %}
+                <div class="reply-item">
+                    <div class="reply-header">
+                        <span class="reply-author">{{ reply.candidate.get_full_name|default:reply.candidate.username }}</span>
+                        <span class="reply-date">{{ reply.created_at|date:"M d, Y g:i A" }}</span>
+                    </div>
+                    <div class="reply-content">{{ reply.reply_text|linebreaks }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:2rem;">
+                <a href="{% url 'hr_manage_interviews' %}" class="btn btn-secondary">Back to Interviews</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

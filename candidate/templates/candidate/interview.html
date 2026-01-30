@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+   <link rel="stylesheet" href="{% static 'css/interview-styles.css' %}">
+   <style>
+       .timer {
+           font-size: 24px;
+           font-weight: bold;
+           color: #e74c3c;
+           text-align: center;
+           margin: 10px 0;
+           padding: 10px;
+           background: #f8f9fa;
+           border-radius: 5px;
+       }
+       
+       .recording-indicator {
+           background: #e74c3c;
+           color: white;
+           padding: 10px;
+           border-radius: 5px;
+           text-align: center;
+           margin: 10px 0;
+           animation: pulse 1.5s infinite;
+       }
+       
+       @keyframes pulse {
+           0% { opacity: 1; }
+           50% { opacity: 0.7; }
+           100% { opacity: 1; }
+       }
+       
+       .transcript-display {
+           background: #f8f9fa;
+           border: 1px solid #ddd;
+           border-radius: 5px;
+           padding: 15px;
+           margin: 10px 0;
+           min-height: 100px;
+           font-style: italic;
+       }
+       
+       .mode-button {
+           background: #3498db;
+           color: white;
+           border: none;
+           padding: 12px 24px;
+           margin: 5px;
+           border-radius: 5px;
+           cursor: pointer;
+           font-size: 16px;
+           transition: background 0.3s;
+       }
+       
+       .mode-button:hover {
+           background: #2980b9;
+       }
+       
+       .mode-button.active {
+           background: #27ae60;
+       }
+       
+       .answer-section {
+           background: white;
+           border: 2px solid #3498db;
+           border-radius: 8px;
+           padding: 20px;
+           margin: 15px 0;
+       }
+       
+       .question-display {
+           background: #ecf0f1;
+           padding: 20px;
+           border-radius: 8px;
+           margin-bottom: 20px;
+           border-left: 5px solid #3498db;
+       }
+       
+       .action-buttons {
+           margin-top: 20px;
+           text-align: center;
+       }
+       
+       .action-buttons button {
+           margin: 5px;
+           padding: 10px 20px;
+           border: none;
+           border-radius: 5px;
+           cursor: pointer;
+           font-size: 14px;
+       }
+   </style>
+</head>
+
+<div class="container">
+    <div class="question-display">
+        <h2>🎤 AI Interview Session</h2>
+        <h3>Question {{ current_index|add:1 }} of {{ total }}</h3>
+        <p id="question-text" style="font-size: 18px; line-height: 1.6;">{{ question }}</p>
+    </div>
+    
+    <div id="mode-selection" class="answer-section">
+        <h4>Choose your answer method:</h4>
+        <button class="mode-button" onclick="startChatMode()">✍️ Answer via Text</button>
+        <button class="mode-button" onclick="startVoiceMode()">🎤 Answer via Voice</button>
+    </div>
+
+    <div id="chat-answer" class="answer-section" style="display:none;">
+        <h4>✍️ Text Answer</h4>
+        <form method="post">
+            {% csrf_token %}
+            <textarea name="chat_answer" rows="6" cols="60" placeholder="Type your answer here..." 
+                      style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px;" required></textarea><br><br>
+            <input type="hidden" name="mode" value="chat">
+            <input type="hidden" name="question_index" value="{{ current_index }}">
+            <button type="submit" style="background: #27ae60; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer;">
+                📤 Submit Answer
+            </button>
+        </form>
+    </div>
+
+    <div id="voice-answer" class="answer-section" style="display:none;">
+        <h4>🎤 Voice Answer</h4>
+        <div id="recording-status" class="recording-indicator" style="display:none;">
+            🔴 Recording in progress...
+        </div>
+        <div id="timer-display" class="timer" style="display:none;">
+            Time remaining: <span id="time-left">120</span> seconds
+        </div>
+        <div id="transcript-container" class="transcript-display" style="display:none;">
+            <strong>Your transcribed answer:</strong><br>
+            <span id="transcript-text"></span>
+        </div>
+        
+        <div id="voice-controls">
+            <button onclick="startRecording()" id="start-btn" style="background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 5px;">
+                🎤 Start Recording
+            </button>
+            <button onclick="stopRecording()" id="stop-btn" style="background: #95a5a6; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; display:none;">
+                ⏹️ Stop Recording
+            </button>
+        </div>
+        
+        <form method="post" id="voice-form" style="margin-top: 15px;">
+            {% csrf_token %}
+            <input type="hidden" name="voice_text" id="voice-text">
+            <input type="hidden" name="mode" value="voice">
+            <input type="hidden" name="question_index" value="{{ current_index }}">
+            <button type="submit" id="submit-voice" style="background: #27ae60; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; display:none;">
+                📤 Submit Voice Answer
+            </button>
+        </form>
+    </div>
+
+    <div class="action-buttons">
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="question_index" value="{{ current_index }}">
+            <button type="submit" name="skip_question" style="background-color: #f39c12;">⏭️ Skip This Question</button>
+        </form>
+
+        <form action="{% url 'interview_complete' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" style="background-color: #e74c3c;">🏁 Complete Interview</button>
+        </form>
+    </div>
+</div>
+
+<script>
+let recognition;
+let timer;
+let timeLeft = 120;
+let isRecording = false;
+
+function startChatMode() {
+    document.getElementById('chat-answer').style.display = 'block';
+    document.getElementById('voice-answer').style.display = 'none';
+    document.getElementById('mode-selection').style.display = 'none';
+}
+
+function startVoiceMode() {
+    document.getElementById('voice-answer').style.display = 'block';
+    document.getElementById('chat-answer').style.display = 'none';
+    document.getElementById('mode-selection').style.display = 'none';
+}
+
+function startRecording() {
+    if (isRecording) return;
+    
+    isRecording = true;
+    timeLeft = 120;
+    
+    // Show recording status and timer
+    document.getElementById('recording-status').style.display = 'block';
+    document.getElementById('timer-display').style.display = 'block';
+    document.getElementById('transcript-container').style.display = 'block';
+    document.getElementById('start-btn').style.display = 'none';
+    document.getElementById('stop-btn').style.display = 'inline-block';
+    document.getElementById('submit-voice').style.display = 'none';
+    
+    // Start speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        
+        let finalTranscript = '';
+        
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript + ' ';
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            
+            document.getElementById('transcript-text').textContent = finalTranscript + interimTranscript;
+            document.getElementById('voice-text').value = finalTranscript;
+        };
+        
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            stopRecording();
+        };
+        
+        recognition.start();
+    } else {
+        alert("Speech recognition not supported in this browser. Please use Chrome or Edge.");
+        stopRecording();
+        return;
+    }
+    
+    // Start countdown timer
+    updateTimer();
+}
+
+function updateTimer() {
+    if (!isRecording) return;
+    
+    document.getElementById('time-left').textContent = timeLeft;
+    
+    if (timeLeft <= 0) {
+        stopRecording();
+        alert("⏰ Time's up! Your recording has been stopped automatically.");
+        return;
+    }
+    
+    timeLeft--;
+    setTimeout(updateTimer, 1000);
+}
+
+function stopRecording() {
+    if (!isRecording) return;
+    
+    isRecording = false;
+    
+    // Stop speech recognition
+    if (recognition) {
+        recognition.stop();
+    }
+    
+    // Clear timer
+    clearTimeout(timer);
+    
+    // Update UI
+    document.getElementById('recording-status').style.display = 'none';
+    document.getElementById('timer-display').style.display = 'none';
+    document.getElementById('start-btn').style.display = 'inline-block';
+    document.getElementById('stop-btn').style.display = 'none';
+    
+    // Show submit button if there's transcript
+    const transcript = document.getElementById('voice-text').value;
+    if (transcript && transcript.trim().length > 0) {
+        document.getElementById('submit-voice').style.display = 'inline-block';
+    }
+}
+
+// Auto-submit form when voice text is available
+document.getElementById('voice-text').addEventListener('input', function() {
+    const transcript = this.value;
+    if (transcript && transcript.trim().length > 0) {
+        document.getElementById('submit-voice').style.display = 'inline-block';
+    }
+});
+</script>
+{% endblock %}

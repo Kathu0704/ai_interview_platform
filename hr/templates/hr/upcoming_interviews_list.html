@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Upcoming Interviews</title>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<style>
+		body { font-family: 'Poppins', sans-serif; background:#f8f9fa; color:#333; }
+		.navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding:1rem 2rem; display:flex; justify-content:space-between; }
+		.navbar a { color:#fff; text-decoration:none; margin-left:1rem; }
+		.container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+		.card { background:#fff; border-radius:12px; padding:1.5rem; margin-bottom:1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+		.row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:1rem; }
+		.item { min-width: 220px; }
+		.link { color:#1565c0; text-decoration:none; }
+		.link:hover { text-decoration:underline; }
+		.btn { padding:0.75rem 1.5rem; border:none; border-radius:8px; font-weight:500; text-decoration:none; display:inline-flex; align-items:center; gap:0.5rem; transition:all 0.3s ease; cursor:pointer; }
+		.btn-primary { background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; }
+		.btn-primary:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(102, 126, 234, 0.4); }
+		.btn-secondary { background:#6c757d; color:white; }
+		.btn-secondary:hover { background:#5a6268; transform:translateY(-2px); }
+		.btn-success { background:linear-gradient(135deg, #28a745 0%, #20c997 100%); color:white; }
+		.btn-success:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(40, 167, 69, 0.4); }
+		.actions { display:flex; gap:1rem; flex-wrap:wrap; }
+		.status-badge { padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem; font-weight:500; }
+		.status-scheduled { background:#fff3cd; color:#856404; }
+		.status-completed { background:#d4edda; color:#155724; }
+		@media (max-width: 768px) { .actions { flex-direction:column; } .btn { width:100%; justify-content:center; } }
+	</style>
+</head>
+<body>
+	<nav class="navbar">
+		<div>Upcoming Interviews</div>
+		<div>
+			<a href="{% url 'hr_dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+			<a href="{% url 'hr_manage_interviews' %}"><i class="fas fa-list"></i> All Interviews</a>
+		</div>
+	</nav>
+	<div class="container">
+		{% if bookings %}
+			{% for item in bookings %}
+				{% with b=item.booking p=item.profile %}
+				<div class="card">
+					<div class="row">
+						<div class="item"><strong>Candidate Name:</strong> {{ b.candidate.get_full_name|default:b.candidate.username }}</div>
+						<div class="item"><strong>Username:</strong> {{ b.candidate.username }}</div>
+						<div class="item"><strong>Date:</strong> {{ b.time_slot.date|date:"M d, Y" }}</div>
+						<div class="item"><strong>Time:</strong> {{ b.time_slot.start_time|time:"g:i A" }} - {{ b.time_slot.end_time|time:"g:i A" }}</div>
+						<div class="item"><strong>Designation:</strong> {{ b.designation }}</div>
+						<div class="item">
+							<strong>Resume:</strong> 
+							{% if p and p.resume %}
+								<a class="link" href="{{ p.resume.url }}" target="_blank"><i class="fas fa-file"></i> View Resume</a>
+							{% else %}
+								<span>Not uploaded</span>
+							{% endif %}
+						</div>
+					</div>
+					
+					<div class="actions">
+						{% if b.status == 'scheduled' %}
+							{% if b.is_meeting_ready %}
+								<a href="{% url 'hr_join_interview' b.id %}" class="btn btn-primary">
+									<i class="fas fa-video"></i> Join Interview
+								</a>
+							{% else %}
+								<button class="btn btn-secondary" disabled>
+									<i class="fas fa-clock"></i> Not Ready Yet
+								</button>
+							{% endif %}
+							
+							<form method="post" action="{% url 'hr_complete_interview' b.id %}" style="display: inline;">
+								{% csrf_token %}
+								<button type="submit" class="btn btn-success" onclick="return confirm('Mark this interview as completed?')">
+									<i class="fas fa-check"></i> Mark Complete
+								</button>
+							</form>
+						{% elif b.status == 'completed' %}
+							<span class="status-badge status-completed">
+								<i class="fas fa-check"></i> Completed
+							</span>
+						{% endif %}
+					</div>
+				</div>
+				{% endwith %}
+			{% endfor %}
+		{% else %}
+			<p>No upcoming interviews.</p>
+		{% endif %}
+	</div>
+</body>
+</html>

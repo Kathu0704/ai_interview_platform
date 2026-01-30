@@ -1,0 +1,304 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book HR Interview - AI Mock Interview Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: #1565c0;
+        }
+
+        .info-box h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .hr-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .hr-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .hr-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+        }
+
+        .hr-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .hr-details {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .hr-expertise {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .hr-experience {
+            color: #666;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            width: 100%;
+        }
+
+        .book-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+        .no-hrs {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .no-hrs i {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+
+        .messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .hr-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{% url 'candidate_dashboard' %}" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+            <h1><i class="fas fa-users"></i> Book HR Interview</h1>
+            <p>Select an HR professional for your {{ profile.designation }} interview</p>
+        </div>
+
+        <div class="content">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> HR Interview Information</h3>
+                <p><strong>Your Designation:</strong> {{ profile.designation }}</p>
+                <p><strong>Interview Duration:</strong> 30 minutes</p>
+                <p><strong>Platform:</strong> Jitsi Meet (Video call)</p>
+                <p><strong>Available Time:</strong> 9:00 AM - 5:00 PM</p>
+            </div>
+
+            {% if available_hrs %}
+                <div class="hr-grid">
+                    {% for hr in available_hrs %}
+                        <div class="hr-card" onclick="window.location.href='{% url 'hr_time_slots' hr.id %}'">
+                            <div class="hr-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="hr-name">{{ hr.full_name }}</div>
+                            <div class="hr-details">{{ hr.email }}</div>
+                            <div class="hr-expertise">{{ hr.field_of_expertise }}</div>
+                            <div class="hr-experience">{{ hr.years_of_experience }} years of experience</div>
+                            <a href="{% url 'hr_time_slots' hr.id %}" class="book-btn">
+                                <i class="fas fa-calendar-plus"></i> View Available Slots
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-hrs">
+                    <i class="fas fa-user-slash"></i>
+                    <h3>No HR Professionals Available</h3>
+                    <p>Currently, there are no HR professionals available for {{ profile.designation }} interviews.</p>
+                    <p>Please check back later or contact support for assistance.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Add hover effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const hrCards = document.querySelectorAll('.hr-card');
+            
+            hrCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

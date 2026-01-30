@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Candidates - Admin Panel</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f5f7fa; margin:0; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding: 1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .container { max-width: 1100px; margin: 2rem auto; background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        th { background: #fafbff; font-weight: 600; color: #444; }
+        .pill { padding: 4px 10px; border-radius: 999px; font-size: 12px; background:#eef2ff; color:#3730a3; }
+        .header-actions { display:flex; gap: .5rem; }
+        .search { margin-left:auto; }
+        input[type="text"] { padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div>👥 Manage Candidates</div>
+        <div>Welcome, {{ admin_name }}</div>
+    </div>
+    <div class="container">
+        <div class="header-actions">
+            <a class="btn" href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+            <div class="search">
+                <!-- Placeholder for frontend search/filter -->
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Field</th>
+                    <th>Designation</th>
+                    <th>Resume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in candidates %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.user.email }}</td>
+                    <td>{{ c.field|default:'-' }}</td>
+                    <td><span class="pill">{{ c.designation|default:'-' }}</span></td>
+                    <td>
+                        {% if c.resume %}
+                            <a href="{{ c.resume.url }}" target="_blank">View</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No candidates found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+

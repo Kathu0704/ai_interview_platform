@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Interviews - HR Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .date-section {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .date-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .interview-card {
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .interview-card:last-child {
+            border-bottom: none;
+        }
+
+        .interview-card:hover {
+            background-color: #f8f9fa;
+        }
+
+        .interview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .candidate-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .candidate-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .candidate-details h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .candidate-details p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .candidate-email {
+            color: #667eea;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .interview-time {
+            text-align: right;
+        }
+
+        .time-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .date-display {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .interview-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-item i {
+            color: #667eea;
+            width: 16px;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .detail-value {
+            color: #666;
+        }
+
+        .interview-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-scheduled {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-no-show {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        .messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .interview-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .interview-time {
+                text-align: left;
+            }
+
+            .interview-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* New styles for upcoming/past interview sections */
+        .section-header.upcoming h2 {
+            color: #007bff;
+        }
+
+        .section-header.past h2 {
+            color: #6c757d;
+        }
+
+        .interview-card.upcoming {
+            border-left: 4px solid #007bff;
+        }
+
+        .interview-card.past {
+            border-left: 4px solid #6c757d;
+            opacity: 0.9;
+        }
+
+        .time-until, .time-since {
+            margin-top: 0.5rem;
+        }
+
+        .today-badge {
+            background: #28a745;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .days-until {
+            color: #007bff;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .time-ago {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-video"></i>
+            Manage Interviews
+        </div>
+        <div class="navbar-nav">
+            <a href="{% url 'hr_dashboard' %}" class="nav-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'hr_manage_time_slots' %}" class="nav-link">
+                <i class="fas fa-clock"></i> Time Slots
+            </a>
+            <a href="{% url 'hr_view_candidates' %}" class="nav-link">
+                <i class="fas fa-users"></i> Candidates
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% load hr_extras %}
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="header">
+            <h1>Manage Interviews</h1>
+            <p>View and manage all your scheduled interviews with candidates</p>
+        </div>
+
+        <!-- Upcoming Interviews Section -->
+        {% if upcoming_interviews %}
+            <div class="section-header upcoming">
+                <h2><i class="fas fa-clock"></i> Upcoming Interviews</h2>
+                <p>Interviews scheduled for the future - sorted by nearest time first</p>
+            </div>
+            
+            {% for item in upcoming_interviews %}
+                {% with interview=item.interview profile=item.profile %}
+                <div class="interview-card upcoming">
+                    <div class="interview-header">
+                        <div class="candidate-info">
+                            <div class="candidate-avatar">
+                                {{ interview.candidate.first_name|first|upper }}{{ interview.candidate.last_name|first|upper }}
+                            </div>
+                            <div class="candidate-details">
+                                <h3>{{ item.display_name }}</h3>
+                                <p class="candidate-email">{{ interview.candidate.email }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="interview-time">
+                            <div class="time-display">
+                                {{ interview.time_slot.start_time|time:"g:i A" }} - {{ interview.time_slot.end_time|time:"g:i A" }}
+                            </div>
+                            <div class="date-display">
+                                {{ interview.time_slot.date|date:"M d, Y" }}
+                            </div>
+                            <div class="time-until">
+                                {% if interview.time_slot.date == current_date %}
+                                    <span class="today-badge">Today</span>
+                                {% else %}
+                                    <span class="days-until">{{ interview.time_slot.date|timeuntil|truncatewords:2 }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interview-details">
+                        <div class="detail-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span class="detail-label">Designation:</span>
+                            <span class="detail-value">{{ interview.designation }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-{{ interview.status }}">
+                                {{ interview.status|title }}
+                            </span>
+                        </div>
+                        
+                        {% if profile and profile.resume %}
+                        <div class="detail-item">
+                            <i class="fas fa-file"></i>
+                            <span class="detail-label">Resume:</span>
+                            <a href="{{ profile.resume.url }}" target="_blank" class="detail-value">View Resume</a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if interview.meeting_url %}
+                        <div class="detail-item">
+                            <i class="fas fa-video"></i>
+                            <span class="detail-label">Meeting ID:</span>
+                            <span class="detail-value">{{ interview.meeting_id }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="interview-actions">
+                        {% if interview.is_meeting_ready %}
+                            <a href="{% url 'hr_join_interview' interview.id %}" class="btn btn-primary">
+                                <i class="fas fa-video"></i> Join Interview
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>
+                                <i class="fas fa-clock"></i> Join Window Closed
+                            </button>
+                        {% endif %}
+                        
+                        {% if item.allow_mark_complete %}
+                            <form method="post" action="{% url 'hr_complete_interview' interview.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success" onclick="return confirm('Mark this interview as completed?')">
+                                    <i class="fas fa-check"></i> Mark Complete
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+        {% endif %}
+
+        <!-- Past Interviews Section -->
+        {% if past_interviews %}
+            <div class="section-header past">
+                <h2><i class="fas fa-history"></i> Past Interviews</h2>
+                <p>Completed, missed, and cancelled interviews - sorted by most recent first</p>
+            </div>
+            
+            {% for item in past_interviews %}
+                {% with interview=item.interview profile=item.profile %}
+                <div class="interview-card past">
+                    <div class="interview-header">
+                        <div class="candidate-info">
+                            <div class="candidate-avatar">
+                                {{ interview.candidate.first_name|first|upper }}{{ interview.candidate.last_name|first|upper }}
+                            </div>
+                            <div class="candidate-details">
+                                <h3>{{ item.display_name }}</h3>
+                                <p class="candidate-email">{{ interview.candidate.email }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="interview-time">
+                            <div class="time-display">
+                                {{ interview.time_slot.start_time|time:"g:i A" }} - {{ interview.time_slot.end_time|time:"g:i A" }}
+                            </div>
+                            <div class="date-display">
+                                {{ interview.time_slot.date|date:"M d, Y" }}
+                            </div>
+                            <div class="time-since">
+                                <span class="time-ago">{{ interview.time_slot.date|timesince }} ago</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interview-details">
+                        <div class="detail-item">
+                            <i class="fas fa-briefcase"></i>
+                            <span class="detail-label">Designation:</span>
+                            <span class="detail-value">{{ interview.designation }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-{{ interview.status }}">
+                                {{ interview.status|title }}
+                            </span>
+                        </div>
+                        
+                        {% if profile and profile.resume %}
+                        <div class="detail-item">
+                            <i class="fas fa-file"></i>
+                            <span class="detail-label">Resume:</span>
+                            <a href="{{ profile.resume.url }}" target="_blank" class="detail-value">View Resume</a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if interview.meeting_url %}
+                        <div class="detail-item">
+                            <i class="fas fa-video"></i>
+                            <span class="detail-label">Meeting ID:</span>
+                            <span class="detail-value">{{ interview.meeting_id }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="interview-actions">
+                        {% if interview.status == 'completed' %}
+                            <span class="status-badge status-completed">
+                                <i class="fas fa-check"></i> Completed
+                            </span>
+                            
+                            <!-- Feedback Actions -->
+                            {% if not item.has_feedback %}
+                                <a href="{% url 'hr_give_feedback' interview.id %}" class="btn btn-primary">
+                                    <i class="fas fa-comment-dots"></i> Give Feedback
+                                </a>
+                            {% else %}
+                                <a href="{% url 'hr_view_feedback' interview.id %}" class="btn btn-success">
+                                    <i class="fas fa-eye"></i> View Feedback
+                                </a>
+                            {% endif %}
+                        {% elif interview.status == 'no_show' %}
+                            <span class="status-badge status-no-show">
+                                <i class="fas fa-user-slash"></i> No Show
+                            </span>
+                        {% elif interview.status == 'cancelled' %}
+                            <span class="status-badge status-cancelled">
+                                <i class="fas fa-times-circle"></i> Cancelled
+                            </span>
+                        {% endif %}
+                        
+                        {% if interview.notes %}
+                            <div class="detail-item">
+                                <i class="fas fa-sticky-note"></i>
+                                <span class="detail-label">Notes:</span>
+                                <span class="detail-value">{{ interview.notes }}</span>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Attendance Information -->
+                        {% if interview.status == 'completed' %}
+                            <div class="detail-item">
+                                <i class="fas fa-users"></i>
+                                <span class="detail-label">Attendance:</span>
+                                <span class="detail-value">{{ interview.attendance_summary }}</span>
+                            </div>
+                            {% if interview.actual_duration_minutes > 0 %}
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="detail-label">Duration:</span>
+                                    <span class="detail-value">{{ interview.actual_duration_minutes }} minutes</span>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+        {% endif %}
+
+        <!-- No Interviews Message -->
+        {% if not upcoming_interviews and not past_interviews %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No Interviews Found</h3>
+                <p>You don't have any scheduled interviews yet. Manage your time slots to start receiving bookings.</p>
+                <a href="{% url 'hr_manage_time_slots' %}" class="btn btn-primary">
+                    <i class="fas fa-clock"></i> Manage Time Slots
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

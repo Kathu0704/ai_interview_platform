@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if is_initial_setup %}Initial Setup{% else %}Register Admin{% endif %} - Admin Panel</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .card { width: 420px; background:#fff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,.15); }
+        h2 { margin:0 0 12px; }
+        p.sub { margin:0 0 16px; color:#6b7280; }
+        label { display:block; margin:.5rem 0 .25rem; font-weight:600; color:#374151; }
+        input { width:100%; padding:12px; border:2px solid #e5e7eb; border-radius:10px; background:#f9fafb; }
+        input:focus { outline:none; border-color:#667eea; background:#fff; }
+        .btn { width:100%; padding:12px; margin-top:12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:600; }
+        .msg { padding:10px 12px; border-radius:8px; margin-bottom:10px; }
+        .msg-error { background:#fee2e2; color:#991b1b; }
+        .msg-success { background:#ecfdf5; color:#065f46; }
+        .link { display:inline-block; margin-top:12px; text-decoration:none; color:#4f46e5; }
+    </style>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="card">
+        <h2>{% if is_initial_setup %}Initial Admin Setup{% else %}Register New Admin{% endif %}</h2>
+        <p class="sub">Create an administrator account for the platform.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="confirm">Confirm Password</label>
+            <input type="password" id="confirm" name="confirm" required>
+
+            <button class="btn" type="submit">Create Admin</button>
+        </form>
+
+        <a class="link" href="{% url 'admin_login' %}">Back to Login</a>
+    </div>
+</body>
+</html>
+
+
+

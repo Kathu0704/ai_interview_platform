@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage HR - Admin Panel</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f5f7fa; margin: 0; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+        .container { max-width: 1100px; margin: 2rem auto; background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        th { background: #fafbff; font-weight: 600; color: #444; }
+        .badge { padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+        .active { background: #e6fffa; color: #0f766e; }
+        .inactive { background: #fee2e2; color: #991b1b; }
+        .btn { display:inline-block; padding: 8px 12px; border-radius: 8px; text-decoration:none; border:none; cursor:pointer; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; }
+        .btn-ghost { background: #f3f4f6; color:#374151; }
+        .header-actions { display:flex; gap: .5rem; }
+        .msg { margin-bottom:1rem; padding:.75rem 1rem; border-radius:8px; }
+        .msg-success { background:#ecfdf5; color:#065f46; }
+        .msg-error { background:#fee2e2; color:#991b1b; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div>🔧 Manage HR</div>
+        <div>Welcome, {{ admin_name }}</div>
+    </div>
+    <div class="container">
+        <div class="header-actions">
+            <a class="btn btn-ghost" href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+            <a class="btn btn-primary" href="{% url 'hr_registration' %}">+ Register New HR</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th>Field</th>
+                    <th>Experience</th>
+                    <th>Status</th>
+                    <th style="width:220px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hr in hrs %}
+                <tr>
+                    <td>{{ hr.full_name }}</td>
+                    <td>{{ hr.email }}</td>
+                    <td>{{ hr.username }}</td>
+                    <td>{{ hr.field_of_expertise }}</td>
+                    <td>{{ hr.years_of_experience }} yrs</td>
+                    <td>
+                        {% if hr.is_active %}<span class="badge active">Active</span>{% else %}<span class="badge inactive">Inactive</span>{% endif %}
+                    </td>
+                    <td>
+                        <a class="btn btn-ghost" href="{% url 'toggle_hr_active' hr.id %}">{% if hr.is_active %}Deactivate{% else %}Activate{% endif %}</a>
+                        <a class="btn btn-primary" style="margin-left:6px;" href="{% url 'edit_hr' hr.id %}">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7">No HRs found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+

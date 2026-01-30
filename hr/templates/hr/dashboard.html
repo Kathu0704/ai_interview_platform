@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - AI Mock Interview Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --card-shadow-hover: 0 20px 60px rgba(102, 126, 234, 0.15);
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --bg-light: #f8fafc;
+            --border-radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(245, 87, 108, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0px, 0px) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+            100% { transform: translate(0px, 0px) rotate(360deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .navbar-brand {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-brand i {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            transition: var(--transition);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .nav-link:hover::before {
+            left: 0;
+        }
+
+        .nav-link:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-logout {
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            opacity: 0.1;
+            border-radius: 50%;
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HR Info Section */
+        .hr-info {
+            background: var(--dark-gradient);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hr-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="1" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hr-info h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hr-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hr-detail {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: var(--transition);
+        }
+
+        .hr-detail:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .hr-detail i {
+            width: 24px;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .stat-card:hover::before {
+            animation: shine 0.6s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+
+        .stat-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-icon.interviews {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-icon.scheduled {
+            background: var(--secondary-gradient);
+            color: white;
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.3);
+        }
+
+        .stat-icon.upcoming {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Today's Interviews */
+        .todays-interviews-list {
+            max-height: 350px;
+            overflow-y: auto;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .todays-interviews-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .todays-interviews-list::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 3px;
+        }
+
+        .todays-interviews-list::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 3px;
+        }
+
+        .today-interview-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .today-interview-item:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 100%);
+            transform: translateX(5px);
+        }
+
+        .interview-candidate-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .interview-details {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.8;
+            color: var(--text-secondary);
+        }
+
+        .btn-join {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-join:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-not-ready {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Actions Grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .action-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .action-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem;
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+        }
+
+        .action-card:hover .action-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .action-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-action {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .btn-action::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: var(--transition);
+        }
+
+        .btn-action:hover::before {
+            left: 100%;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        /* Messages */
+        .messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            border: none;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(139, 195, 74, 0.9));
+            color: white;
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .welcome-section {
+                padding: 2rem;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .hr-details {
+                grid-template-columns: 1fr;
+            }
+
+            .action-card {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 1.8rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .action-icon {
+                width: 80px;
+            height: 80px;
+                font-size: 2rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hover effects for interactive elements */
+        .interactive:hover {
+            cursor: pointer;
+        }
+
+        /* Success pulse animation */
+        .success-pulse {
+            animation: successPulse 2s infinite;
+        }
+
+        @keyframes successPulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-user-tie"></i>
+            HR Dashboard
+        </div>
+        <div class="navbar-nav">
+            <a href="/" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{% url 'hr_manage_time_slots' %}" class="nav-link">
+                <i class="fas fa-clock"></i> Time Slots
+            </a>
+            <a href="{% url 'hr_manage_interviews' %}" class="nav-link">
+                <i class="fas fa-video"></i> Interviews
+            </a>
+            <a href="{% url 'hr_view_candidates' %}" class="nav-link">
+                <i class="fas fa-users"></i> Candidates
+            </a>
+            <a href="{% url 'hr_analytics' %}" class="nav-link">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </a>
+            <a href="{% url 'hr_logout' %}" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} success-pulse">
+                        <i class="fas fa-check-circle"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="welcome-section">
+            <h1 class="welcome-title">Welcome back, {{ hr_name }}! 👋</h1>
+            <p class="welcome-subtitle">Your comprehensive interview management platform awaits. Here's your daily overview and quick actions.</p>
+        </div>
+
+        <div class="hr-info">
+            <h3><i class="fas fa-user-circle"></i> Your Profile Overview</h3>
+            <div class="hr-details">
+                <div class="hr-detail">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ hr_user.email }}</span>
+                </div>
+                <div class="hr-detail">
+                    <i class="fas fa-briefcase"></i>
+                    <span>{{ hr_user.field_of_expertise }} • {{ hr_user.years_of_experience }} years</span>
+                </div>
+                <div class="hr-detail">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Member since {{ hr_user.created_at|date:"M Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <a href="{% url 'hr_interviews_conducted' %}" class="stat-card interactive">
+                <div class="stat-icon interviews">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="stat-number" data-count="{{ total_interviews_conducted }}">0</div>
+                <div class="stat-label">Total Interviews Conducted</div>
+            </a>
+
+            <div class="stat-card">
+                <div class="stat-icon scheduled">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-number" data-count="{{ todays_interviews_scheduled }}">0</div>
+                <div class="stat-label">Today's Scheduled Interviews</div>
+                
+                {% if todays_interviews_data %}
+                    <div class="todays-interviews-list">
+                        {% for item in todays_interviews_data %}
+                            {% with interview=item.interview profile=item.profile %}
+                            <div class="today-interview-item">
+                                <div class="interview-candidate-name">
+                                    <i class="fas fa-user"></i>
+                                    {{ interview.candidate.get_full_name|default:interview.candidate.username }}
+                                </div>
+                                <div class="interview-details">
+                                    <i class="fas fa-clock"></i>
+                                    {{ interview.time_slot.start_time|time:"g:i A" }} • {{ interview.designation }}
+                                </div>
+                                {% if interview.is_meeting_ready %}
+                                    <a href="{% url 'hr_join_interview' interview.id %}" class="btn-join">
+                                        <i class="fas fa-video"></i> Join Interview
+                                    </a>
+                                {% else %}
+                                    <span class="btn-not-ready">
+                                        <i class="fas fa-hourglass-half"></i> Preparing...
+                                    </span>
+                                {% endif %}
+                            </div>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <a href="{% url 'hr_interviews_upcoming' %}" class="stat-card interactive">
+                <div class="stat-icon upcoming">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-number" data-count="{{ upcoming_interviews }}">0</div>
+                <div class="stat-label">Upcoming Interviews</div>
+            </a>
+        </div>
+
+        <div class="actions-grid">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="action-title">Time Slot Management</h3>
+                <p class="action-description">Configure your availability and create time slots for candidate interviews with flexible scheduling options.</p>
+                <a href="{% url 'hr_manage_time_slots' %}" class="btn-action">
+                    <i class="fas fa-arrow-right"></i> Manage Slots
+                </a>
+            </div>
+
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <h3 class="action-title">Interview Management</h3>
+                <p class="action-description">Oversee all scheduled interviews, manage sessions, and track interview progress in real-time.</p>
+                <a href="{% url 'hr_manage_interviews' %}" class="btn-action">
+                    <i class="fas fa-arrow-right"></i> View Interviews
+                </a>
+            </div>
+
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="action-title">Candidate Directory</h3>
+                <p class="action-description">Browse comprehensive candidate profiles, review applications, and manage your talent pipeline effectively.</p>
+                <a href="{% url 'hr_view_candidates' %}" class="btn-action">
+                    <i class="fas fa-arrow-right"></i> View Candidates
+                </a>
+            </div>
+
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="action-title">Analytics & Insights</h3>
+                <p class="action-description">Access detailed performance metrics, interview analytics, and comprehensive reporting tools.</p>
+                <a href="{% url 'hr_analytics' %}" class="btn-action">
+                    <i class="fas fa-arrow-right"></i> View Analytics
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced number animation with easing
+            function animateNumber(element, start, end, duration) {
+                const startTime = performance.now();
+                
+                function easeOutCubic(t) {
+                    return 1 - Math.pow(1 - t, 3);
+                }
+                
+                function update(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easedProgress = easeOutCubic(progress);
+                    const currentNumber = Math.floor(start + (end - start) * easedProgress);
+                    
+                    element.textContent = currentNumber;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                }
+                
+                requestAnimationFrame(update);
+            }
+
+            // Animate all stat numbers with staggered timing
+            const statNumbers = document.querySelectorAll('.stat-number[data-count]');
+            statNumbers.forEach((stat, index) => {
+                const finalNumber = parseInt(stat.getAttribute('data-count'));
+                setTimeout(() => {
+                    animateNumber(stat, 0, finalNumber, 2000);
+                }, index * 300);
+            });
+
+            // Advanced card hover effects with 3D transforms
+            const cards = document.querySelectorAll('.stat-card, .action-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 10;
+                    const rotateY = (centerX - x) / 10;
+                    
+                    this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.02)`;
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
+                });
+                
+                card.addEventListener('mousemove', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 20;
+                    const rotateY = (centerX - x) / 20;
+                    
+                    this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.02)`;
+                });
+            });
+
+            // Smooth scroll behavior for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add loading states to action buttons
+            document.querySelectorAll('.btn-action, .btn-join').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (!this.classList.contains('loading')) {
+                        this.classList.add('loading');
+                        const originalContent = this.innerHTML;
+                        this.innerHTML = '<div class="loading"></div> Loading...';
+                        
+                        // Simulate loading (remove this in production)
+                        setTimeout(() => {
+                            this.classList.remove('loading');
+                            this.innerHTML = originalContent;
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Enhanced navbar scroll effect
+            let lastScrollTop = 0;
+            const navbar = document.querySelector('.navbar');
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // Scrolling down
+                    navbar.style.transform = 'translateY(-100%)';
+                    navbar.style.opacity = '0.9';
+                } else {
+                    // Scrolling up
+                    navbar.style.transform = 'translateY(0)';
+                    navbar.style.opacity = '1';
+                }
+                
+                // Add background blur when scrolled
+                if (scrollTop > 50) {
+                    navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                    navbar.style.backdropFilter = 'blur(20px)';
+                } else {
+                    navbar.style.background = 'rgba(255, 255, 255, 0.9)';
+                    navbar.style.backdropFilter = 'blur(10px)';
+                }
+                
+                lastScrollTop = scrollTop;
+            }, { passive: true });
+
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for animation
+            document.querySelectorAll('.stat-card, .action-card, .welcome-section, .hr-info').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+
+            // Add ripple effect to buttons
+            function createRipple(event) {
+                const button = event.currentTarget;
+                const circle = document.createElement('span');
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                const radius = diameter / 2;
+                
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+                circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+                circle.classList.add('ripple');
+                
+                const ripple = button.getElementsByClassName('ripple')[0];
+                if (ripple) {
+                    ripple.remove();
+                }
+                
+                button.appendChild(circle);
+            }
+            
+            // Add ripple CSS
+            const rippleCSS = `
+                .ripple {
+                    position: absolute;
+                    border-radius: 50%;
+                    background-color: rgba(255, 255, 255, 0.6);
+                    transform: scale(0);
+                    animation: ripple-animation 0.6s linear;
+                    pointer-events: none;
+                }
+                
+                @keyframes ripple-animation {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = rippleCSS;
+            document.head.appendChild(style);
+            
+            document.querySelectorAll('.btn-action, .btn-join, .btn-logout').forEach(btn => {
+                btn.addEventListener('click', createRipple);
+            });
+
+            // Auto-refresh today's interviews every 5 minutes
+            setInterval(() => {
+                const todaysInterviewsList = document.querySelector('.todays-interviews-list');
+                if (todaysInterviewsList) {
+                    // Add subtle pulse to indicate refresh
+                    todaysInterviewsList.style.opacity = '0.7';
+                    setTimeout(() => {
+                        todaysInterviewsList.style.opacity = '1';
+                    }, 300);
+                }
+            }, 300000); // 5 minutes
+
+            // Add keyboard navigation support
+            document.addEventListener('keydown', function(e) {
+                // ESC key to close modals or return to top
+                if (e.key === 'Escape') {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                // Ctrl/Cmd + K for quick actions (could be extended)
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    // Focus on first action button
+                    const firstAction = document.querySelector('.btn-action');
+                    if (firstAction) {
+                        firstAction.focus();
+                    }
+                }
+            });
+
+            // Enhanced error handling and user feedback
+            window.addEventListener('error', function(e) {
+                console.error('An error occurred:', e.error);
+                // Could show user-friendly error message here
+            });
+
+            // Performance optimization: Lazy load heavy elements
+            if ('IntersectionObserver' in window) {
+                const lazyElements = document.querySelectorAll('[data-lazy]');
+                const lazyObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const element = entry.target;
+                            // Trigger lazy loading
+                            element.classList.add('loaded');
+                            lazyObserver.unobserve(element);
+                        }
+                    });
+                });
+
+                lazyElements.forEach(el => lazyObserver.observe(el));
+            }
+
+            // Add smooth transitions for dynamic content updates
+            const observer2 = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1) { // Element node
+                                node.style.opacity = '0';
+                                node.style.transform = 'translateY(20px)';
+                                requestAnimationFrame(() => {
+                                    node.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                                    node.style.opacity = '1';
+                                    node.style.transform = 'translateY(0)';
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            observer2.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            // Initialize tooltips for better UX (if needed)
+            function initTooltips() {
+                const tooltipElements = document.querySelectorAll('[data-tooltip]');
+                tooltipElements.forEach(el => {
+                    el.addEventListener('mouseenter', function(e) {
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        tooltip.textContent = this.getAttribute('data-tooltip');
+                        tooltip.style.cssText = `
+                            position: absolute;
+                            background: rgba(0,0,0,0.9);
+                            color: white;
+                            padding: 8px 12px;
+                            border-radius: 6px;
+                            font-size: 14px;
+                            pointer-events: none;
+                            z-index: 10000;
+                            opacity: 0;
+                            transition: opacity 0.3s ease;
+                        `;
+                        
+                        document.body.appendChild(tooltip);
+                        
+                        const rect = this.getBoundingClientRect();
+                        tooltip.style.left = `${rect.left + rect.width/2 - tooltip.offsetWidth/2}px`;
+                        tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+                        
+                        requestAnimationFrame(() => {
+                            tooltip.style.opacity = '1';
+                        });
+                        
+                        this.addEventListener('mouseleave', () => {
+                            tooltip.remove();
+                        }, { once: true });
+                    });
+                });
+            }
+
+            initTooltips();
+
+            // Add focus management for better accessibility
+            const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    const focusable = Array.from(document.querySelectorAll(focusableElements));
+                    const currentIndex = focusable.indexOf(document.activeElement);
+                    
+                    if (e.shiftKey) {
+                        // Shift + Tab (previous)
+                        if (currentIndex === 0) {
+                            e.preventDefault();
+                            focusable[focusable.length - 1].focus();
+                        }
+                    } else {
+                        // Tab (next)
+                        if (currentIndex === focusable.length - 1) {
+                            e.preventDefault();
+                            focusable[0].focus();
+                        }
+                    }
+                }
+            });
+
+            console.log('HR Dashboard initialized successfully! 🚀');
+        });
+
+        // Utility function for debouncing
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Utility function for throttling
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
