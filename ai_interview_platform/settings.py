@@ -156,3 +156,17 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = '/adminpanel/login/'
 LOGIN_REDIRECT_URL = '/adminpanel/dashboard/'
+
+# NLTK Auto Download (Render Fix)
+
+import nltk
+
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
