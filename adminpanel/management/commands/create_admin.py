@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         email = 'Admin@mock.com'
-        password = 'Admin@2003'
+        password = 'Admin@2025'
         
         # Hash the password
         hashed_password = hashlib.sha256(password.encode()).hexdigest()

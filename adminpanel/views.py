@@ -9,9 +9,6 @@ from candidate.models import CandidateProfile, InterviewRecord
 import hashlib
 
 def login_view(request):
-    # If no admin exists yet, send to registration on initial setup
-    if request.method == 'GET' and Admin.objects.count() == 0:
-        return redirect('admin_register')
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -31,51 +28,6 @@ def login_view(request):
     
     return render(request, 'adminpanel/login.html')
 
-
-def admin_register_view(request):
-    """Register an Admin. Allowed if no admin exists yet, or current session is admin."""
-    has_any_admin = Admin.objects.exists()
-    if has_any_admin and 'admin_id' not in request.session:
-        messages.error(request, 'Admin already set up. Please login.')
-        return redirect('admin_login')
-
-    if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
-        confirm  = request.POST.get('confirm', '')
-
-        # Basic validation
-        errors = []
-        if not name:
-            errors.append('Name is required.')
-        if not email:
-            errors.append('Email is required.')
-        if not password or not confirm:
-            errors.append('Password and confirmation are required.')
-        if password and len(password) < 6:
-            errors.append('Password must be at least 6 characters.')
-        if password != confirm:
-            errors.append('Passwords do not match.')
-        if Admin.objects.filter(email=email).exists():
-            errors.append('An admin with this email already exists.')
-
-        if errors:
-            for e in errors:
-                messages.error(request, e)
-        else:
-            hashed = hashlib.sha256(password.encode()).hexdigest()
-            admin = Admin.objects.create(name=name, email=email, password=hashed, is_active=True)
-            messages.success(request, 'Admin account created successfully. You are now logged in.')
-            request.session['admin_id'] = admin.id
-            request.session['admin_email'] = admin.email
-            request.session['admin_name'] = admin.name
-            return redirect('admin_dashboard')
-
-    return render(request, 'adminpanel/register.html', {
-        'admin_name': request.session.get('admin_name', 'Admin') if 'admin_id' in request.session else 'Setup',
-        'is_initial_setup': not has_any_admin,
-    })
 
 def dashboard_view(request):
     # Require admin session

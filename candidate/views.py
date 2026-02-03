@@ -29,7 +29,10 @@ def send_email_otp(email, otp, subject, message):
         )
         return True
     except Exception as e:
-        print(f"Email sending failed: {e}")
+        print(f"❌ Email sending failed: {e}")
+        print(f"   Attempted to send to: {email}")
+        print(f"   Check your SMTP configuration in settings.py and .env file")
+        print(f"   Make sure EMAIL_HOST_USER and EMAIL_HOST_PASSWORD are set correctly")
         return False
 
 def email_confirmation_view(request):
