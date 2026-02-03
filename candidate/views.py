@@ -878,3 +878,24 @@ def track_candidate_attendance(request, booking_id):
         return JsonResponse({'error': 'Interview not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+
+
+
+
+from django.http import HttpResponse
+from django.core.mail import send_mail
+from django.conf import settings
+
+def test_email(request):
+    try:
+        send_mail(
+            "Render Email Test",
+            "This is a test email from Render production.",
+            settings.DEFAULT_FROM_EMAIL,
+            ["yourgmail@gmail.com"],
+            fail_silently=False,
+        )
+        return HttpResponse("Email sent successfully!")
+    except Exception as e:
+        return HttpResponse(f"Email failed: {str(e)}")

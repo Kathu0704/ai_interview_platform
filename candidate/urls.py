@@ -29,4 +29,7 @@ urlpatterns = [
     path('view-hr-feedback/<int:booking_id>/', views.view_hr_feedback, name='view_hr_feedback'),
     path('reply-to-feedback/<int:feedback_id>/', views.reply_to_feedback, name='reply_to_feedback'),
     path('track-candidate-attendance/<int:booking_id>/', views.track_candidate_attendance, name='track_candidate_attendance'),
+
+
+    path("test-email/", views.test_email, name="test_email"),
 ]
