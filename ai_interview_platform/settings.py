@@ -30,7 +30,7 @@ load_dotenv(dotenv_path=env_path)
 SECRET_KEY = 'django-insecure-_y6xr39@qa92^kcap0#gsnuyl^q_(y)-lp0afm581by*6u)sz+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -91,27 +91,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
-# Email Configuration - Brevo SMTP Relay
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() == 'true'
-EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '30'))
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')  # Brevo SMTP Key
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '') or EMAIL_HOST_USER
-
-# Validate email configuration - warn if missing but don't block server startup
-if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
-    import warnings
-    warnings.warn(
-        "⚠️  EMAIL_HOST_USER and/or EMAIL_HOST_PASSWORD are not set in .env file. "
-        "Email sending will fail. Please create a .env file with your Brevo SMTP credentials.",
-        UserWarning
-    )
 
 # OTP Configuration
 OTP_EXPIRY_MINUTES = 10
@@ -184,3 +163,6 @@ try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
     nltk.download('punkt')
+
+# Brevo Email API key
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY")

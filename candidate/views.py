@@ -1,24 +1,35 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-#from django.core.mail import send_mail
-from django.conf import settings
 from django.utils import timezone
-from .forms import UserRegisterForm, ResumeUploadForm, DesignationForm, PasswordResetRequestForm, PasswordResetConfirmForm, EmailConfirmationForm
-from .models import CandidateProfile, PasswordResetOTP, EmailConfirmationOTP
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.models import User
-import os
-from pyresparser import ResumeParser
 from django.contrib.auth.decorators import login_required
+
+import os
+from datetime import datetime
+
+from pyresparser import ResumeParser
+
 from ai_interview_platform.utils.question_generator import generate_questions
 from ai_interview_platform.utils.evaluator import evaluate_answer
-from .models import InterviewRecord
-from datetime import datetime
-from hr.models import HR, HRTimeSlot, HRInterviewBooking, HRInterviewFeedback, CandidateFeedbackReply
-from django.http import JsonResponse
-
 from ai_interview_platform.utils.email_service import send_brevo_email
 
+from .forms import (
+    UserRegisterForm,
+    ResumeUploadForm,
+    DesignationForm,
+    PasswordResetRequestForm,
+    PasswordResetConfirmForm,
+    EmailConfirmationForm,
+)
+from .models import (
+    CandidateProfile,
+    PasswordResetOTP,
+    EmailConfirmationOTP,
+    InterviewRecord,
+)
+from hr.models import HR, HRTimeSlot, HRInterviewBooking, HRInterviewFeedback, CandidateFeedbackReply
 
 def send_email_otp(email, otp, subject, message):
     
@@ -856,15 +867,15 @@ def track_candidate_attendance(request, booking_id):
     """API endpoint to track candidate meeting attendance"""
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Not authenticated'}, status=401)
-    
+
     try:
         booking = HRInterviewBooking.objects.get(
             id=booking_id,
             candidate=request.user
         )
-        
+
         action = request.POST.get('action')
-        
+
         if action == 'candidate_joined':
             booking.mark_candidate_joined()
             return JsonResponse({'status': 'success', 'message': 'Candidate attendance recorded'})
@@ -873,28 +884,21 @@ def track_candidate_attendance(request, booking_id):
             return JsonResponse({'status': 'success', 'message': 'Candidate departure recorded'})
         else:
             return JsonResponse({'error': 'Invalid action'}, status=400)
-            
+
     except HRInterviewBooking.DoesNotExist:
         return JsonResponse({'error': 'Interview not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
 
-
-
-
-from django.http import HttpResponse
-#from django.core.mail import send_mail
-from django.conf import settings
 
 def test_email(request):
     success = send_brevo_email(
         "karthikpoojary0704@gmail.com",
-        "Brevo API Test Email",
-        "<h2>Email Working Successfully 🎉</h2>"
+        "Brevo API Working",
+        "<h2>Brevo Email API is Working Successfully 🎉</h2>",
     )
 
     if success:
-        return HttpResponse("Email sent successfully using Brevo API")
+        return HttpResponse("Email sent using Brevo API")
     else:
         return HttpResponse("Email failed")
