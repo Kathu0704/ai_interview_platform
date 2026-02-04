@@ -14,7 +14,7 @@ def send_brevo_email(to_email, subject, html_content):
     data = {
         "sender": {
             "name": "AI Interview Platform",
-            "email": "aimockinterview07@gmail.com"
+            "email": "noreply@brevo.com"
         },
         "to": [{"email": to_email}],
         "subject": subject,
