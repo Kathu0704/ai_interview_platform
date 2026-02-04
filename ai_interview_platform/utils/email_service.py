@@ -19,9 +19,12 @@ def send_brevo_email(to_email, subject, html_content):
         "to": [{"email": to_email}],
         "subject": subject,
         "htmlContent": html_content,
+        "textContent": "AI Interview Platform Email"
     }
 
     response = requests.post(url, json=data, headers=headers)
+
+    # 🔥 LOG RESPONSE
     print("BREVO STATUS:", response.status_code)
     print("BREVO RESPONSE:", response.text)
 
