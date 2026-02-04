@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.core.mail import send_mail
-#from django.conf import settings
+#from django.core.mail import send_mail
+from django.conf import settings
 from django.utils import timezone
 from .forms import UserRegisterForm, ResumeUploadForm, DesignationForm, PasswordResetRequestForm, PasswordResetConfirmForm, EmailConfirmationForm
 from .models import CandidateProfile, PasswordResetOTP, EmailConfirmationOTP
@@ -33,25 +33,7 @@ def send_email_otp(email, otp, subject, message):
         print(f"❌ Email sending failed: {e}")
         print(f"   Attempted to send to: {email}")
         return False
-    """Send OTP via email using SMTP
-    try:
-        
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
-        
-        
-        return True
-    except Exception as e:
-        print(f"❌ Email sending failed: {e}")
-        print(f"   Attempted to send to: {email}")
-        print(f"   Check your SMTP configuration in settings.py and .env file")
-        print(f"   Make sure EMAIL_HOST_USER and EMAIL_HOST_PASSWORD are set correctly")
-        return False"""
+   
 
 def email_confirmation_view(request):
     """Handle email confirmation OTP request during registration"""
@@ -902,18 +884,17 @@ def track_candidate_attendance(request, booking_id):
 
 
 from django.http import HttpResponse
-from django.core.mail import send_mail
+#from django.core.mail import send_mail
 from django.conf import settings
 
 def test_email(request):
-    try:
-        send_mail(
-            "Render Email Test",
-            "This is a test email from Render production.",
-            settings.DEFAULT_FROM_EMAIL,
-            ["yourgmail@gmail.com"],
-            fail_silently=False,
-        )
-        return HttpResponse("Email sent successfully!")
-    except Exception as e:
-        return HttpResponse(f"Email failed: {str(e)}")
+    success = send_brevo_email(
+        "karthikpoojary0704@gmail.com",
+        "Brevo API Test Email",
+        "<h2>Email Working Successfully 🎉</h2>"
+    )
+
+    if success:
+        return HttpResponse("Email sent successfully using Brevo API")
+    else:
+        return HttpResponse("Email failed")
