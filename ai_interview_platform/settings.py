@@ -92,6 +92,7 @@ DATABASES = {
     }
 }
 
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
 # Email Configuration - Brevo SMTP Relay
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')

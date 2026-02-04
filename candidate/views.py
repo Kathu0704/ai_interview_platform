@@ -17,6 +17,9 @@ from datetime import datetime
 from hr.models import HR, HRTimeSlot, HRInterviewBooking, HRInterviewFeedback, CandidateFeedbackReply
 from django.http import JsonResponse
 
+from ai_interview_platform.utils.email_service import send_brevo_email
+
+
 def send_email_otp(email, otp, subject, message):
     """Send OTP via email using SMTP"""
     try:

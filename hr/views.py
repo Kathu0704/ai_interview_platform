@@ -14,6 +14,9 @@ from django.db.models import Count, Q
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
 
+from ai_interview_platform.utils.email_service import send_brevo_email
+
+
 def _auto_update_no_shows_for_hr(hr_user):
     """Mark scheduled interviews as no_show if >10 minutes past start time."""
     from datetime import datetime
