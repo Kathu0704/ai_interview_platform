@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.conf import settings
+#from django.conf import settings
 from django.utils import timezone
 from .forms import UserRegisterForm, ResumeUploadForm, DesignationForm, PasswordResetRequestForm, PasswordResetConfirmForm, EmailConfirmationForm
 from .models import CandidateProfile, PasswordResetOTP, EmailConfirmationOTP
@@ -21,8 +21,21 @@ from ai_interview_platform.utils.email_service import send_brevo_email
 
 
 def send_email_otp(email, otp, subject, message):
-    """Send OTP via email using SMTP"""
+    
+    """Send OTP via email using Brevo API"""
     try:
+        return send_brevo_email(
+            email,
+            subject,
+            f"<p>{message}</p>"
+        )
+    except Exception as e:
+        print(f"❌ Email sending failed: {e}")
+        print(f"   Attempted to send to: {email}")
+        return False
+    """Send OTP via email using SMTP
+    try:
+        
         send_mail(
             subject,
             message,
@@ -30,13 +43,15 @@ def send_email_otp(email, otp, subject, message):
             [email],
             fail_silently=False,
         )
+        
+        
         return True
     except Exception as e:
         print(f"❌ Email sending failed: {e}")
         print(f"   Attempted to send to: {email}")
         print(f"   Check your SMTP configuration in settings.py and .env file")
         print(f"   Make sure EMAIL_HOST_USER and EMAIL_HOST_PASSWORD are set correctly")
-        return False
+        return False"""
 
 def email_confirmation_view(request):
     """Handle email confirmation OTP request during registration"""
