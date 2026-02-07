@@ -164,21 +164,15 @@ try:
 except LookupError:
     nltk.download('punkt')
 
-# Brevo Email API key
-BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
+# ================= EMAIL CONFIG (BREVO + ANYMAIL) =================
 
+INSTALLED_APPS += ['anymail']
 
-# =========================
-# EMAIL CONFIGURATION (BREVO SMTP)
-# =========================
+EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+ANYMAIL = {
+    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY"),
+}
 
-EMAIL_HOST = "smtp-relay.brevo.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = "a167c5001@smtp-brevo.com"
-EMAIL_HOST_PASSWORD = os.environ.get("BREVO_SMTP_KEY")
-
-DEFAULT_FROM_EMAIL = "AI Mock Interview Platform <aimockinterview07@gmail.com>"
+DEFAULT_FROM_EMAIL = "AI Mock Interview <noreply@brevo.com>"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL

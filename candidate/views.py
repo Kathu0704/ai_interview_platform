@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 
 import os
 from datetime import datetime
@@ -892,13 +893,11 @@ def track_candidate_attendance(request, booking_id):
 
 
 def test_email(request):
-    success = send_brevo_email(
-        "karthikpoojary0704@gmail.com",
-        "Brevo API Working",
-        "<h2>Brevo Email API is Working Successfully 🎉</h2>",
+    send_mail(
+        subject='Brevo Email Test – SUCCESS',
+        message='🎉 Congratulations! Your email system is working perfectly.',
+        from_email=None,  # IMPORTANT
+        recipient_list=['YOUR_PERSONAL_EMAIL@gmail.com'],
+        fail_silently=False,
     )
-
-    if success:
-        return HttpResponse("Email sent using Brevo API")
-    else:
-        return HttpResponse("Email failed")
+    return HttpResponse("Email sent successfully via Brevo")
