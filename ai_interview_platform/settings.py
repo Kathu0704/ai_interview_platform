@@ -168,11 +168,17 @@ except LookupError:
 
 INSTALLED_APPS += ['anymail']
 
+# Used by django-anymail Brevo backend
 EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
-
 ANYMAIL = {
     "BREVO_API_KEY": os.environ.get("BREVO_API_KEY"),
 }
 
-DEFAULT_FROM_EMAIL = "AI Mock Interview <noreply@brevo.com>"
+# Used by our direct Brevo HTTP helper (utils/email_service.py)
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
+
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL",
+    "AI Mock Interview <aimockinterview07@gmail.com>",
+)
 SERVER_EMAIL = DEFAULT_FROM_EMAIL

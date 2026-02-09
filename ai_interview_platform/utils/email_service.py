@@ -1,5 +1,6 @@
 import requests
 from django.conf import settings
+from email.utils import parseaddr
 
 
 def send_brevo_email(to_email, subject, html_content):
@@ -14,7 +15,8 @@ def send_brevo_email(to_email, subject, html_content):
     data = {
         "sender": {
             "name": "AI Interview Platform",
-            "email": "noreply@brevo.com"
+            # settings.DEFAULT_FROM_EMAIL can be either "name <email>" or "email"
+            "email": (parseaddr(getattr(settings, "DEFAULT_FROM_EMAIL", ""))[1] or "aimockinterview07@gmail.com")
         },
         "to": [{"email": to_email}],
         "subject": subject,
