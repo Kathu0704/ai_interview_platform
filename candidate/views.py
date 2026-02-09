@@ -276,41 +276,52 @@ def upload_resume(request):
         if form.is_valid():
             # Store current designation before updating
             current_designation = profile.designation
-            
+
             form.save()
-            resume_path = profile.resume.path
-            data = ResumeParser(resume_path).get_extracted_data()
-            profile.parsed_data = data
-            skills = [skill.lower() for skill in (data.get('skills') or [])]
-            
-            # Update field based on skills - more comprehensive detection
-            it_skills = ['python', 'java', 'javascript', 'html', 'css', 'sql', 'database', 'api', 'git', 'docker', 'kubernetes', 'aws', 'azure', 'react', 'angular', 'vue', 'node.js', 'php', 'c++', 'c#', '.net', 'ruby', 'go', 'rust', 'swift', 'kotlin', 'scala', 'r', 'matlab', 'tensorflow', 'pytorch', 'machine learning', 'artificial intelligence', 'data science', 'devops', 'cloud computing']
-            profile.field = 'IT' if any(skill in skills for skill in it_skills) else 'Non-IT'
-            
-            # Preserve the designation if it exists and is still valid for the new field
-            if current_designation:
-                # Check if the designation is still valid for the new field
-                it_designations = ['developer', 'engineer', 'programmer', 'analyst', 'architect', 'administrator', 'specialist', 'consultant']
-                non_it_designations = ['hr', 'sales', 'marketing', 'manager', 'executive', 'coordinator', 'assistant', 'writer', 'recruiter', 'accountant', 'analyst']
-                
-                if profile.field == 'IT' and any(tech in current_designation.lower() for tech in it_designations):
-                    profile.designation = current_designation
-                elif profile.field == 'Non-IT' and any(non_tech in current_designation.lower() for non_tech in non_it_designations):
-                    profile.designation = current_designation
-                # If designation doesn't match new field, clear it so user can select new one
+
+            # Safely try to parse resume; don't crash the request if parsing fails in production
+            try:
+                resume_path = profile.resume.path
+                data = ResumeParser(resume_path).get_extracted_data()
+                profile.parsed_data = data
+                skills = [skill.lower() for skill in (data.get('skills') or [])]
+
+                # Update field based on skills - more comprehensive detection
+                it_skills = ['python', 'java', 'javascript', 'html', 'css', 'sql', 'database', 'api', 'git', 'docker', 'kubernetes', 'aws', 'azure', 'react', 'angular', 'vue', 'node.js', 'php', 'c++', 'c#', '.net', 'ruby', 'go', 'rust', 'swift', 'kotlin', 'scala', 'r', 'matlab', 'tensorflow', 'pytorch', 'machine learning', 'artificial intelligence', 'data science', 'devops', 'cloud computing']
+                profile.field = 'IT' if any(skill in skills for skill in it_skills) else 'Non-IT'
+
+                # Preserve the designation if it exists and is still valid for the new field
+                if current_designation:
+                    # Check if the designation is still valid for the new field
+                    it_designations = ['developer', 'engineer', 'programmer', 'analyst', 'architect', 'administrator', 'specialist', 'consultant']
+                    non_it_designations = ['hr', 'sales', 'marketing', 'manager', 'executive', 'coordinator', 'assistant', 'writer', 'recruiter', 'accountant', 'analyst']
+
+                    if profile.field == 'IT' and any(tech in current_designation.lower() for tech in it_designations):
+                        profile.designation = current_designation
+                    elif profile.field == 'Non-IT' and any(non_tech in current_designation.lower() for non_tech in non_it_designations):
+                        profile.designation = current_designation
+                    # If designation doesn't match new field, clear it so user can select new one
+                    else:
+                        profile.designation = ''
                 else:
                     profile.designation = ''
-            else:
-                profile.designation = ''
-            
-            profile.save()
-            
-            # Show appropriate message
-            if profile.designation:
-                messages.success(request, 'Resume updated successfully! Your designation has been preserved.')
-            else:
-                messages.warning(request, 'Resume updated successfully! Please select your designation again as it may not be suitable for the detected field.')
-            
+
+                profile.save()
+
+                # Show appropriate message
+                if profile.designation:
+                    messages.success(request, 'Resume updated successfully! Your designation has been preserved.')
+                else:
+                    messages.warning(request, 'Resume updated successfully! Please select your designation again as it may not be suitable for the detected field.')
+
+            except Exception as e:
+                # Log and degrade gracefully instead of throwing 500 and breaking the upload flow
+                print(f"❌ Resume parsing failed: {e}")
+                messages.warning(
+                    request,
+                    'Resume uploaded, but automatic parsing failed. You can still continue by selecting your designation manually.'
+                )
+
             return redirect('candidate_dashboard')
     else:
         form = ResumeUploadForm(instance=profile)
