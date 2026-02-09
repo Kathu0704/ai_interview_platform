@@ -14,6 +14,7 @@ from pyresparser import ResumeParser
 
 from ai_interview_platform.utils.question_generator import generate_questions
 from ai_interview_platform.utils.evaluator import evaluate_answer
+from ai_interview_platform.utils.resume_utils import parse_resume_and_detect_field
 from ai_interview_platform.utils.email_service import send_brevo_email
 
 from .forms import (
@@ -279,20 +280,19 @@ def upload_resume(request):
 
             form.save()
 
-            # Safely try to parse resume; don't crash the request if parsing fails in production
+            # Best-effort parsing + IT / Non-IT detection (with robust fallback)
             try:
                 resume_path = profile.resume.path
-                data = ResumeParser(resume_path).get_extracted_data()
-                profile.parsed_data = data
-                skills = [skill.lower() for skill in (data.get('skills') or [])]
+                parsed = parse_resume_and_detect_field(resume_path)
 
-                # Update field based on skills - more comprehensive detection
-                it_skills = ['python', 'java', 'javascript', 'html', 'css', 'sql', 'database', 'api', 'git', 'docker', 'kubernetes', 'aws', 'azure', 'react', 'angular', 'vue', 'node.js', 'php', 'c++', 'c#', '.net', 'ruby', 'go', 'rust', 'swift', 'kotlin', 'scala', 'r', 'matlab', 'tensorflow', 'pytorch', 'machine learning', 'artificial intelligence', 'data science', 'devops', 'cloud computing']
-                profile.field = 'IT' if any(skill in skills for skill in it_skills) else 'Non-IT'
+                detected_field = parsed.get("field") or ""
+                skills = parsed.get("skills") or []
+
+                if detected_field:
+                    profile.field = detected_field
 
                 # Preserve the designation if it exists and is still valid for the new field
-                if current_designation:
-                    # Check if the designation is still valid for the new field
+                if current_designation and profile.field:
                     it_designations = ['developer', 'engineer', 'programmer', 'analyst', 'architect', 'administrator', 'specialist', 'consultant']
                     non_it_designations = ['hr', 'sales', 'marketing', 'manager', 'executive', 'coordinator', 'assistant', 'writer', 'recruiter', 'accountant', 'analyst']
 
@@ -300,7 +300,6 @@ def upload_resume(request):
                         profile.designation = current_designation
                     elif profile.field == 'Non-IT' and any(non_tech in current_designation.lower() for non_tech in non_it_designations):
                         profile.designation = current_designation
-                    # If designation doesn't match new field, clear it so user can select new one
                     else:
                         profile.designation = ''
                 else:
@@ -309,13 +308,15 @@ def upload_resume(request):
                 profile.save()
 
                 # Show appropriate message
-                if profile.designation:
-                    messages.success(request, 'Resume updated successfully! Your designation has been preserved.')
+                if profile.field:
+                    if profile.designation:
+                        messages.success(request, f'Resume parsed as {profile.field}. Your designation has been preserved.')
+                    else:
+                        messages.success(request, f'Resume parsed as {profile.field}. Please select your designation.')
                 else:
-                    messages.warning(request, 'Resume updated successfully! Please select your designation again as it may not be suitable for the detected field.')
+                    messages.warning(request, 'Resume uploaded, but automatic parsing could not confidently detect IT / Non-IT. Please select your designation manually.')
 
             except Exception as e:
-                # Log and degrade gracefully instead of throwing 500 and breaking the upload flow
                 print(f"❌ Resume parsing failed: {e}")
                 messages.warning(
                     request,
