@@ -10,8 +10,6 @@ from django.core.mail import send_mail
 import os
 from datetime import datetime
 
-from pyresparser import ResumeParser
-
 from ai_interview_platform.utils.question_generator import generate_questions
 from ai_interview_platform.utils.evaluator import evaluate_answer
 from ai_interview_platform.utils.resume_utils import parse_resume_and_detect_field
