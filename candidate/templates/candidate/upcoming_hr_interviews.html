@@ -366,13 +366,27 @@
                         {% endif %}
 
                         <div class="booking-actions">
-                            {% if booking.is_meeting_ready %}
-                                <a href="{{ booking.meeting_url }}" target="_blank" class="action-btn join-btn" style="background: #28a745; font-size: 1rem; padding: 0.8rem 1.5rem;">
-                                    <i class="fas fa-video"></i> Join Interview Meeting
-                                </a>
+                            {% if booking.time_slot.date == current_date %}
+                                {% with start=booking.time_slot.start_time %}
+                                    {% if current_time >= start and current_time <= start|add:"0:05:00" %}
+                                        <a href="{{ booking.meeting_url }}" target="_blank"
+                                           class="action-btn join-btn"
+                                           style="background: #28a745; font-size: 1rem; padding: 0.8rem 1.5rem;">
+                                            <i class="fas fa-video"></i> Join Interview Meeting
+                                        </a>
+                                    {% elif current_time < start %}
+                                        <div class="action-btn" style="background: #6c757d; cursor: not-allowed;">
+                                            <i class="fas fa-clock"></i> Join available at {{ start }}
+                                        </div>
+                                    {% else %}
+                                        <div class="action-btn" style="background: #dc3545; color:white; cursor: not-allowed;">
+                                            <i class="fas fa-times-circle"></i> Join Window Closed
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
                             {% else %}
                                 <div class="action-btn" style="background: #6c757d; cursor: not-allowed;">
-                                    <i class="fas fa-clock"></i> Meeting Opens at Scheduled Time
+                                    <i class="fas fa-calendar"></i> Interview Scheduled
                                 </div>
                             {% endif %}
                         </div>

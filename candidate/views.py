@@ -651,8 +651,9 @@ def hr_time_slots(request, hr_id):
         # 1. Slots that are already booked (have an interview_booking)
         # 2. Slots that are in the past
         # 3. Slots that are less than 5 minutes away
+        from django.utils import timezone
         from datetime import datetime, timedelta
-        now = datetime.now()
+        now = timezone.localtime()
         min_booking_time = now + timedelta(minutes=5)  # Must book at least 5 minutes before slot
         filtered_slots = []
         
@@ -665,8 +666,11 @@ def hr_time_slots(request, hr_id):
             if not s.is_available:
                 continue
             
-            # Combine date and time to create slot datetime
-            slot_dt = datetime.combine(s.date, s.start_time)
+            # Combine date and time to create slot datetime (timezone-aware)
+            slot_dt = timezone.make_aware(
+                datetime.combine(s.date, s.start_time),
+                timezone.get_current_timezone()
+            )
             
             # Only show slots that are at least 5 minutes in the future
             # Example: At 10:55 AM, can book 11:00 AM slot (exactly 5 min before) ✓
@@ -706,10 +710,14 @@ def book_hr_interview(request, hr_id, slot_id):
             messages.error(request, 'This time slot is no longer available.')
             return redirect('hr_time_slots', hr_id=hr_id)
         
-        # Validate 5-minute advance booking requirement
+        # Validate 5-minute advance booking requirement (timezone-aware)
+        from django.utils import timezone
         from datetime import datetime, timedelta
-        now = datetime.now()
-        slot_dt = datetime.combine(time_slot.date, time_slot.start_time)
+        now = timezone.localtime()
+        slot_dt = timezone.make_aware(
+            datetime.combine(time_slot.date, time_slot.start_time),
+            timezone.get_current_timezone()
+        )
         min_booking_time = now + timedelta(minutes=5)
         
         # Must book at least 5 minutes before slot start time
@@ -818,48 +826,45 @@ def hr_interview_history(request):
 
 @login_required
 def upcoming_hr_interviews(request):
-    """Show only upcoming HR interviews with join buttons"""
+    from django.utils import timezone
     from datetime import datetime, timedelta
-    
-    # Use naive local time consistently (to match stored slot times)
-    now = datetime.now()
-    current_time = now.time()
-    current_date = now.date()
-    
-    all_bookings = HRInterviewBooking.objects.filter(candidate=request.user).order_by('-created_at')
-    
+
+    now = timezone.localtime()
+
+    all_bookings = HRInterviewBooking.objects.filter(
+        candidate=request.user,
+        status='scheduled'
+    ).order_by('time_slot__date', 'time_slot__start_time')
+
     upcoming_bookings = []
-    
+
     for booking in all_bookings:
-        if booking.status == 'scheduled':
-            interview_start = datetime.combine(booking.time_slot.date, booking.time_slot.start_time)
-            interview_end = datetime.combine(booking.time_slot.date, booking.time_slot.end_time)
-            if interview_start.date() < current_date:
-                booking.status = 'no_show'
-                booking.save()
-                continue
-            if interview_start.date() == current_date:
-                # Past end -> if >10 minutes after end, mark as no_show
-                minutes_after_end = (datetime.combine(current_date, current_time) - interview_end).total_seconds() / 60
-                if minutes_after_end > 10:
-                    booking.status = 'no_show'
-                    booking.save()
-                elif minutes_after_end >= -40:  # from 30 min slot start until 10 min after end
-                    upcoming_bookings.append(booking)
-                else:
-                    upcoming_bookings.append(booking)
-            else:
-                upcoming_bookings.append(booking)
-    
-    # Sort by nearest date/time first (ascending order)
-    upcoming_bookings.sort(key=lambda x: (x.time_slot.date, x.time_slot.start_time))
-    
+        interview_start = timezone.make_aware(
+            datetime.combine(
+                booking.time_slot.date,
+                booking.time_slot.start_time
+            ),
+            timezone.get_current_timezone()
+        )
+
+        join_window_start = interview_start
+        join_window_end = interview_start + timedelta(minutes=5)
+
+        # ✅ SHOW interview in list (future or joinable)
+        if now < join_window_end:
+            upcoming_bookings.append(booking)
+
+        # ❌ MARK NO SHOW if join window missed
+        if now > join_window_end:
+            booking.status = 'no_show'
+            booking.save()
+
     context = {
         'upcoming_bookings': upcoming_bookings,
-        'current_time': current_time,
-        'current_date': current_date,
+        'current_time': now.time(),
+        'current_date': now.date(),
     }
-    
+
     return render(request, 'candidate/upcoming_hr_interviews.html', context)
 
 @login_required
