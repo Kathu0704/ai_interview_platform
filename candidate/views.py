@@ -642,21 +642,32 @@ def hr_time_slots(request, hr_id):
         hr = HR.objects.get(id=hr_id, is_active=True)
         profile = CandidateProfile.objects.get(user=request.user)
         
-        # Get available time slots for this HR
-        available_slots = HRTimeSlot.objects.filter(
+        # Get all time slots for this HR (we'll filter manually)
+        all_slots = HRTimeSlot.objects.filter(
             hr=hr,
-            is_available=True,
             date__gte=datetime.now().date()
         ).order_by('date', 'start_time')
         
-        # Exclude past slots and enforce 5-minute advance booking requirement
+        # Filter out:
+        # 1. Slots that are already booked (have an interview_booking)
+        # 2. Slots that are in the past
+        # 3. Slots that are less than 5 minutes away
         from datetime import datetime as _dt, timedelta
         now = _dt.now()
         min_booking_time = now + timedelta(minutes=5)  # Must book at least 5 minutes before slot
         filtered_slots = []
-        for s in available_slots:
+        
+        for s in all_slots:
+            # Skip if already booked
+            if s.is_booked:
+                continue
+            
+            # Skip if not available
+            if not s.is_available:
+                continue
+            
+            # Check if slot is in the future and at least 5 minutes away
             slot_dt = _dt.combine(s.date, s.start_time)
-            # Only show slots that are at least 5 minutes in the future
             if slot_dt > min_booking_time:
                 filtered_slots.append(s)
         
@@ -678,8 +689,18 @@ def book_hr_interview(request, hr_id, slot_id):
     """Book an HR interview slot"""
     try:
         hr = HR.objects.get(id=hr_id, is_active=True)
-        time_slot = HRTimeSlot.objects.get(id=slot_id, hr=hr, is_available=True)
+        time_slot = HRTimeSlot.objects.get(id=slot_id, hr=hr)
         profile = CandidateProfile.objects.get(user=request.user)
+        
+        # Check if slot is already booked
+        if time_slot.is_booked:
+            messages.error(request, 'This time slot is already booked by another candidate.')
+            return redirect('hr_time_slots', hr_id=hr_id)
+        
+        # Check if slot is available
+        if not time_slot.is_available:
+            messages.error(request, 'This time slot is no longer available.')
+            return redirect('hr_time_slots', hr_id=hr_id)
         
         # Validate 5-minute advance booking requirement
         from datetime import datetime as _dt, timedelta
