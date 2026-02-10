@@ -649,13 +649,15 @@ def hr_time_slots(request, hr_id):
             date__gte=datetime.now().date()
         ).order_by('date', 'start_time')
         
-        # Exclude past slots for today
-        from datetime import datetime as _dt
+        # Exclude past slots and enforce 5-minute advance booking requirement
+        from datetime import datetime as _dt, timedelta
         now = _dt.now()
+        min_booking_time = now + timedelta(minutes=5)  # Must book at least 5 minutes before slot
         filtered_slots = []
         for s in available_slots:
             slot_dt = _dt.combine(s.date, s.start_time)
-            if slot_dt > now:
+            # Only show slots that are at least 5 minutes in the future
+            if slot_dt > min_booking_time:
                 filtered_slots.append(s)
         
         context = {
@@ -678,6 +680,20 @@ def book_hr_interview(request, hr_id, slot_id):
         hr = HR.objects.get(id=hr_id, is_active=True)
         time_slot = HRTimeSlot.objects.get(id=slot_id, hr=hr, is_available=True)
         profile = CandidateProfile.objects.get(user=request.user)
+        
+        # Validate 5-minute advance booking requirement
+        from datetime import datetime as _dt, timedelta
+        now = _dt.now()
+        slot_dt = _dt.combine(time_slot.date, time_slot.start_time)
+        min_booking_time = now + timedelta(minutes=5)
+        
+        if slot_dt <= min_booking_time:
+            messages.error(
+                request,
+                f'You must book interviews at least 5 minutes in advance. '
+                f'This slot starts at {time_slot.start_time.strftime("%I:%M %p")} on {time_slot.date.strftime("%B %d, %Y")}.'
+            )
+            return redirect('hr_time_slots', hr_id=hr_id)
         
         # Create the booking
         booking = HRInterviewBooking.objects.create(
