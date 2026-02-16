@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 
 import os
-from datetime import datetime
 
 from ai_interview_platform.utils.question_generator import generate_questions
 from ai_interview_platform.utils.evaluator import evaluate_answer
@@ -464,7 +463,7 @@ def interview_complete(request):
             })
 
     interview_record = {
-        'date': str(datetime.now().date()),
+        'date': str(timezone.localdate()),
         'role': profile.field,
         'designation': profile.designation,
         'average': round(total_score / len(answers), 2) if answers else 0,
@@ -562,7 +561,7 @@ def view_ai_evaluation_db(request, record_id):
 
     return render(request, 'candidate/evaluation_detail.html', {
         'interview': {
-            'date': record.created_at.date() if hasattr(record, 'created_at') else None,
+            'date': timezone.localtime(record.created_at).date() if hasattr(record, 'created_at') else None,
             'role': record.role,
             'designation': record.designation,
             'average': record.average,
@@ -768,31 +767,37 @@ def hr_interview_history(request):
     """Show candidate's HR interview history with real-time status tracking"""
     from django.utils import timezone
     from datetime import datetime, timedelta
-    
-    now = timezone.now()
+
+    now = timezone.localtime()
     current_time = now.time()
     current_date = now.date()
-    
+
     all_bookings = HRInterviewBooking.objects.filter(candidate=request.user).order_by('-created_at')
-    
+
     upcoming_bookings = []
     missed_bookings = []
     completed_bookings = []
-    
+
     for booking in all_bookings:
         if booking.status == 'completed':
             completed_bookings.append(booking)
         elif booking.status == 'scheduled':
-            interview_start = datetime.combine(booking.time_slot.date, booking.time_slot.start_time)
-            interview_end = datetime.combine(booking.time_slot.date, booking.time_slot.end_time)
+            interview_start = timezone.make_aware(
+                datetime.combine(booking.time_slot.date, booking.time_slot.start_time),
+                timezone.get_current_timezone()
+            )
+            interview_end = timezone.make_aware(
+                datetime.combine(booking.time_slot.date, booking.time_slot.end_time),
+                timezone.get_current_timezone()
+            )
             if interview_start.date() < current_date:
                 booking.status = 'no_show'
                 booking.save()
                 missed_bookings.append(booking)
                 continue
             if interview_start.date() == current_date:
-                # Past end -> if >10 minutes after end, mark as no_show
-                minutes_after_end = (datetime.combine(current_date, current_time) - interview_end).total_seconds() / 60
+                # Past end -> if >10 minutes after end, mark as no_show (all times aware, IST)
+                minutes_after_end = (now - interview_end).total_seconds() / 60
                 if minutes_after_end > 10:
                     booking.status = 'no_show'
                     booking.save()
