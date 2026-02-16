@@ -8,8 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 
 import os
-from hr.models import  HRTimeSlot
-from datetime import datetime,timedelta
+from datetime import datetime
 
 from ai_interview_platform.utils.question_generator import generate_questions
 from ai_interview_platform.utils.evaluator import evaluate_answer
@@ -638,57 +637,60 @@ def hr_interview_booking(request):
 
 @login_required
 def hr_time_slots(request, hr_id):
-    """
-    Show available future time slots for a specific HR
-    - Excludes past slots
-    - Excludes slots less than 5 minutes away
-    """
-
+    """Show available time slots for a specific HR"""
     try:
-        # Get active HR
         hr = HR.objects.get(id=hr_id, is_active=True)
-
-        # Candidate profile
         profile = CandidateProfile.objects.get(user=request.user)
-
-        # Get all slots for this HR
+        
+        # Get all time slots for this HR (we'll filter manually)
         all_slots = HRTimeSlot.objects.filter(
             hr=hr
         ).order_by('date', 'start_time')
-
-        # Current time (timezone-aware)
-        now = timezone.now().astimezone(timezone.get_current_timezone())
-        min_booking_time = now + timedelta(minutes=5)
-
-        available_slots = []
-
-        for slot in all_slots:
-            # Combine date + time → datetime
-            slot_datetime = timezone.make_aware(
-                datetime.combine(slot.date, slot.start_time),
+        
+        # Filter out:
+        # 1. Slots that are already booked (have an interview_booking)
+        # 2. Slots that are in the past
+        # 3. Slots that are less than 5 minutes away
+        from django.utils import timezone
+        from datetime import datetime, timedelta
+        now = timezone.localtime()
+        min_booking_time = now + timedelta(minutes=5)  # Must book at least 5 minutes before slot
+        filtered_slots = []
+        
+        for s in all_slots:
+            # Skip if already booked
+            if s.is_booked:
+                continue
+            
+            # Skip if not available
+            if not s.is_available:
+                continue
+            
+            # Combine date and time to create slot datetime (timezone-aware)
+            slot_dt = timezone.make_aware(
+                datetime.combine(s.date, s.start_time),
                 timezone.get_current_timezone()
             )
-
-            # Show only slots at least 5 minutes in future
-            if slot_datetime >= min_booking_time:
-                available_slots.append(slot)
-
+            
+            # Only show slots that are at least 5 minutes in the future
+            # Example: At 10:55 AM, can book 11:00 AM slot (exactly 5 min before) ✓
+            #          At 10:56 AM, cannot book 11:00 AM slot (only 4 min before) ✗
+            #          At 10:30 AM, cannot book 9:00 AM slot (already past) ✗
+            if slot_dt >= min_booking_time:
+                filtered_slots.append(s)
+        
         context = {
             'hr': hr,
             'profile': profile,
-            'available_slots': available_slots,
+            'available_slots': filtered_slots,
             'today': now.date(),
         }
-
+        
         return render(request, 'candidate/hr_time_slots.html', context)
-
+        
     except HR.DoesNotExist:
-        messages.error(request, "HR not found.")
+        messages.error(request, 'HR not found.')
         return redirect('hr_interview_booking')
-
-    except CandidateProfile.DoesNotExist:
-        messages.error(request, "Candidate profile not found.")
-        return redirect('candidate_dashboard')
 
 @login_required
 def book_hr_interview(request, hr_id, slot_id):
