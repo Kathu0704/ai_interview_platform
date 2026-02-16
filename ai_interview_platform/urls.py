@@ -30,5 +30,5 @@ urlpatterns = [
     path('adminpanel/', include('adminpanel.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded files (resumes, etc.). On Render, set MEDIA_ROOT to a persistent disk path so uploads survive deploys.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

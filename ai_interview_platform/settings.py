@@ -31,7 +31,7 @@ load_dotenv(dotenv_path=env_path)
 SECRET_KEY = 'django-insecure-_y6xr39@qa92^kcap0#gsnuyl^q_(y)-lp0afm581by*6u)sz+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['*']
 
@@ -149,7 +149,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Use MEDIA_ROOT from env on Render (e.g. persistent disk path). Default: project media/ (ephemeral on Render).
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT') or str(BASE_DIR / 'media')
 
 LOGIN_URL = '/adminpanel/login/'
 LOGIN_REDIRECT_URL = '/adminpanel/dashboard/'

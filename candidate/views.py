@@ -852,20 +852,29 @@ def upcoming_hr_interviews(request):
             timezone.get_current_timezone()
         )
 
-        join_window_start = interview_start
-        join_window_end = interview_start + timedelta(minutes=5)
+        join_window_end = interview_start + timedelta(minutes=10)  # Join allowed 11:00–11:10 for 11:00 slot
 
-        # ✅ SHOW interview in list (future or joinable)
+        # ✅ SHOW interview in list (future or within 10‑min join window)
         if now < join_window_end:
             upcoming_bookings.append(booking)
 
-        # ❌ MARK NO SHOW if join window missed
+        # ❌ MARK NO SHOW if join window (10 min after start) missed
         if now > join_window_end:
             booking.status = 'no_show'
             booking.save()
 
+    # Per-booking join window end (start + 10 min) for template
+    upcoming_with_ends = []
+    for b in upcoming_bookings:
+        start_dt = timezone.make_aware(
+            datetime.combine(b.time_slot.date, b.time_slot.start_time),
+            timezone.get_current_timezone()
+        )
+        join_window_end_time = (start_dt + timedelta(minutes=10)).time()
+        upcoming_with_ends.append({'booking': b, 'join_window_end': join_window_end_time})
+
     context = {
-        'upcoming_bookings': upcoming_bookings,
+        'upcoming_with_ends': upcoming_with_ends,
         'current_time': now.time(),
         'current_date': now.date(),
     }
