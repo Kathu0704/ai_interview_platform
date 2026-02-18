@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 
 import os
+import tempfile
 
 from ai_interview_platform.utils.question_generator import generate_questions
 from ai_interview_platform.utils.evaluator import evaluate_answer
@@ -317,19 +318,24 @@ def upload_resume(request):
                 return JsonResponse({"error": "Failed to save the file. Please try again."}, status=500)
             raise
 
-        # Best-effort parsing: Cloudinary-friendly – always use URL
-        resume_url = None
+        # Best-effort parsing: use storage API to read file, not direct Cloudinary URL
+        temp_resume_path = None
         if profile.resume:
             try:
-                resume_url = profile.resume.url
-                print(f"📎 Using resume URL for parsing: {resume_url[:50]}...")
+                with profile.resume.open("rb") as src, tempfile.NamedTemporaryFile(
+                    delete=False, suffix=".pdf"
+                ) as tmp:
+                    for chunk in src:
+                        tmp.write(chunk)
+                    temp_resume_path = tmp.name
+                print(f"📎 Created local temp resume for parsing: {temp_resume_path}")
             except Exception as e:
-                print(f"⚠️ Could not get resume URL: {e}")
-                resume_url = None
+                print(f"⚠️ Could not create temp resume file for parsing: {e}")
+                temp_resume_path = None
 
-        if resume_url:
+        if temp_resume_path:
             try:
-                parsed = parse_resume_and_detect_field(resume_url)
+                parsed = parse_resume_and_detect_field(temp_resume_path)
                 detected_field = parsed.get("field") or ""
                 if detected_field:
                     profile.field = detected_field
@@ -354,7 +360,17 @@ def upload_resume(request):
                     messages.warning(request, "Resume uploaded, but automatic parsing could not confidently detect IT / Non-IT. Please select your designation manually.")
             except Exception as e:
                 print(f"❌ Resume parsing failed: {e}")
-                messages.warning(request, "Resume uploaded, but automatic parsing failed. You can still continue by selecting your designation manually.")
+                messages.warning(
+                    request,
+                    "Resume uploaded, but automatic parsing failed. You can still continue by selecting your designation manually.",
+                )
+            finally:
+                try:
+                    if temp_resume_path and os.path.exists(temp_resume_path):
+                        os.unlink(temp_resume_path)
+                        print(f"🧹 Removed temp resume file: {temp_resume_path}")
+                except Exception as e:
+                    print(f"⚠️ Failed to delete temp resume file: {e}")
 
         if is_ajax:
             return JsonResponse({"success": True, "redirect": reverse("candidate_dashboard")})
