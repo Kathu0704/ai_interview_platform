@@ -167,8 +167,8 @@ if not os.environ.get('CLOUDINARY_URL'):
         secure=True
     )
 
-# Use Cloudinary for media files (resumes)
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Use Cloudinary for media files (store as \"raw\" so PDFs and docs work correctly)
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
 
 # Media URL and Root (for backward compatibility, but files go to Cloudinary)
 MEDIA_URL = '/media/'

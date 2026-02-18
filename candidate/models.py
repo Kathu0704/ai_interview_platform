@@ -4,15 +4,16 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 import string
-from cloudinary_storage.storage import MediaCloudinaryStorage
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 class CandidateProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # Store resumes as Cloudinary “raw” files so PDFs are accessible via URL
     resume = models.FileField(
-        storage=MediaCloudinaryStorage(),
+        storage=RawMediaCloudinaryStorage(),
         upload_to='resumes/',
         null=True,
-        blank=True
+        blank=True,
     )
     name = models.CharField(max_length=100)  # Full Name
     dob = models.DateField(null=True, blank=True)

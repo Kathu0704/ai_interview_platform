@@ -283,6 +283,21 @@ def upload_resume(request):
         return redirect("candidate_dashboard")
 
     if request.method == "POST":
+        # Explicitly handle "clear existing resume" action from the Django FileField widget
+        if "resume-clear" in request.POST and not request.FILES.get("resume"):
+            # Remove file from storage and clear related fields
+            if profile.resume:
+                profile.resume.delete(save=False)
+            profile.resume = None
+            profile.field = ""
+            profile.designation = ""
+            profile.save()
+
+            messages.success(request, "Existing resume removed successfully.")
+            if is_ajax:
+                return JsonResponse({"success": True, "redirect": reverse("candidate_dashboard")})
+            return redirect("candidate_dashboard")
+
         form = ResumeUploadForm(request.POST, request.FILES, instance=profile)
         if not form.is_valid():
             if is_ajax:
