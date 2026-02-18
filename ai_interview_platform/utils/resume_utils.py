@@ -1,5 +1,9 @@
 import os
+import tempfile
+import requests
 from typing import Dict, Any, List
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 
 def _simple_text_classification(text: str) -> Dict[str, Any]:
@@ -46,15 +50,41 @@ def _simple_text_classification(text: str) -> Dict[str, Any]:
     }
 
 
-def parse_resume_and_detect_field(resume_path: str) -> Dict[str, Any]:
+def parse_resume_and_detect_field(resume_path_or_url: str) -> Dict[str, Any]:
     """
     Best-effort resume parsing that is safe for deployment:
-    - Uses pdfminer.six to extract plain text from the resume
+    - Accepts either a local file path or a Cloudinary URL
+    - Downloads from URL if needed, then uses pdfminer.six to extract plain text
     - Classifies IT / Non-IT based on keyword hits in the text
     - Avoids heavy spaCy/pyresparser dependencies that often fail on servers
     """
-    if not resume_path or not os.path.exists(resume_path):
-        print("⚠️ parse_resume_and_detect_field: resume_path missing or does not exist:", resume_path)
+    if not resume_path_or_url:
+        print("⚠️ parse_resume_and_detect_field: resume_path_or_url is empty")
+        return {"field": "", "skills": [], "raw_text": ""}
+
+    temp_file_path = None
+    resume_path = resume_path_or_url
+
+    # Check if it's a URL (Cloudinary or HTTP/HTTPS)
+    if resume_path_or_url.startswith(('http://', 'https://')):
+        try:
+            print(f"📥 Downloading resume from URL: {resume_path_or_url[:50]}...")
+            response = requests.get(resume_path_or_url, timeout=30)
+            response.raise_for_status()
+            
+            # Create temporary file
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+            temp_file_path = temp_file.name
+            temp_file.write(response.content)
+            temp_file.close()
+            
+            resume_path = temp_file_path
+            print(f"✅ Resume downloaded to temp file: {temp_file_path}")
+        except Exception as e:
+            print(f"⚠️ Failed to download resume from URL: {e}")
+            return {"field": "", "skills": [], "raw_text": ""}
+    elif not os.path.exists(resume_path):
+        print(f"⚠️ parse_resume_and_detect_field: resume_path does not exist: {resume_path}")
         return {"field": "", "skills": [], "raw_text": ""}
 
     raw_text = ""
@@ -62,7 +92,6 @@ def parse_resume_and_detect_field(resume_path: str) -> Dict[str, Any]:
     # Try pdfminer first
     try:
         from pdfminer.high_level import extract_text  # type: ignore
-
         raw_text = extract_text(resume_path) or ""
     except Exception as e:
         print(f"⚠️ pdfminer extract_text failed: {e}")
@@ -73,6 +102,14 @@ def parse_resume_and_detect_field(resume_path: str) -> Dict[str, Any]:
         except Exception as e2:
             print(f"⚠️ Fallback plain-text read failed: {e2}")
             raw_text = ""
+    finally:
+        # Clean up temporary file if we created one
+        if temp_file_path and os.path.exists(temp_file_path):
+            try:
+                os.unlink(temp_file_path)
+                print(f"🧹 Cleaned up temp file: {temp_file_path}")
+            except Exception as e:
+                print(f"⚠️ Failed to delete temp file: {e}")
 
     classified = _simple_text_classification(raw_text)
     print("📝 Resume classification result:", classified)

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.utils import timezone
@@ -266,64 +267,91 @@ def dashboard_view(request):
 
     return render(request, 'candidate/dashboard.html', {'profile': profile, 'ai_records': ai_records})
 
+def _is_ajax(request):
+    return request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+
 @login_required
 def upload_resume(request):
-    profile = CandidateProfile.objects.get(user=request.user)
-    if request.method == 'POST':
+    is_ajax = _is_ajax(request)
+    try:
+        profile = CandidateProfile.objects.get(user=request.user)
+    except CandidateProfile.DoesNotExist:
+        if is_ajax:
+            return JsonResponse({"error": "Profile not found. Please complete registration."}, status=404)
+        messages.error(request, "Profile not found. Please complete registration.")
+        return redirect("candidate_dashboard")
+
+    if request.method == "POST":
         form = ResumeUploadForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            # Store current designation before updating
-            current_designation = profile.designation
+        if not form.is_valid():
+            if is_ajax:
+                err_list = form.errors.get("resume") or list(form.errors.values())[:1]
+                err_msg = err_list[0] if err_list else "Invalid file. Please choose a valid resume file."
+                if hasattr(err_msg, "as_text"):
+                    err_msg = err_msg.as_text().strip() or str(err_msg)
+                return JsonResponse({"error": str(err_msg)}, status=400)
+            return render(request, "candidate/upload_resume.html", {"form": form})
 
+        # Store current designation before updating
+        current_designation = profile.designation
+        try:
             form.save()
+        except Exception as e:
+            if is_ajax:
+                return JsonResponse({"error": "Failed to save the file. Please try again."}, status=500)
+            raise
 
-            # Best-effort parsing + IT / Non-IT detection (with robust fallback)
+        # Best-effort parsing: use URL for Cloudinary, path for local storage
+        resume_path_or_url = None
+        if profile.resume:
             try:
-                resume_path = profile.resume.path
-                parsed = parse_resume_and_detect_field(resume_path)
+                # Try to get local path first (for local storage)
+                resume_path_or_url = profile.resume.path
+            except (ValueError, AttributeError):
+                # If .path doesn't work, use URL (for Cloudinary/remote storage)
+                try:
+                    resume_path_or_url = profile.resume.url
+                    print(f"📎 Using resume URL for parsing: {resume_path_or_url[:50]}...")
+                except Exception as e:
+                    print(f"⚠️ Could not get resume path or URL: {e}")
+                    resume_path_or_url = None
 
+        if resume_path_or_url:
+            try:
+                parsed = parse_resume_and_detect_field(resume_path_or_url)
                 detected_field = parsed.get("field") or ""
-                skills = parsed.get("skills") or []
-
                 if detected_field:
                     profile.field = detected_field
-
-                # Preserve the designation if it exists and is still valid for the new field
                 if current_designation and profile.field:
-                    it_designations = ['developer', 'engineer', 'programmer', 'analyst', 'architect', 'administrator', 'specialist', 'consultant']
-                    non_it_designations = ['hr', 'sales', 'marketing', 'manager', 'executive', 'coordinator', 'assistant', 'writer', 'recruiter', 'accountant', 'analyst']
-
-                    if profile.field == 'IT' and any(tech in current_designation.lower() for tech in it_designations):
+                    it_designations = ["developer", "engineer", "programmer", "analyst", "architect", "administrator", "specialist", "consultant"]
+                    non_it_designations = ["hr", "sales", "marketing", "manager", "executive", "coordinator", "assistant", "writer", "recruiter", "accountant", "analyst"]
+                    if profile.field == "IT" and any(tech in current_designation.lower() for tech in it_designations):
                         profile.designation = current_designation
-                    elif profile.field == 'Non-IT' and any(non_tech in current_designation.lower() for non_tech in non_it_designations):
+                    elif profile.field == "Non-IT" and any(non_tech in current_designation.lower() for non_tech in non_it_designations):
                         profile.designation = current_designation
                     else:
-                        profile.designation = ''
+                        profile.designation = ""
                 else:
-                    profile.designation = ''
-
+                    profile.designation = ""
                 profile.save()
-
-                # Show appropriate message
                 if profile.field:
                     if profile.designation:
-                        messages.success(request, f'Resume parsed as {profile.field}. Your designation has been preserved.')
+                        messages.success(request, f"Resume parsed as {profile.field}. Your designation has been preserved.")
                     else:
-                        messages.success(request, f'Resume parsed as {profile.field}. Please select your designation.')
+                        messages.success(request, f"Resume parsed as {profile.field}. Please select your designation.")
                 else:
-                    messages.warning(request, 'Resume uploaded, but automatic parsing could not confidently detect IT / Non-IT. Please select your designation manually.')
-
+                    messages.warning(request, "Resume uploaded, but automatic parsing could not confidently detect IT / Non-IT. Please select your designation manually.")
             except Exception as e:
                 print(f"❌ Resume parsing failed: {e}")
-                messages.warning(
-                    request,
-                    'Resume uploaded, but automatic parsing failed. You can still continue by selecting your designation manually.'
-                )
+                messages.warning(request, "Resume uploaded, but automatic parsing failed. You can still continue by selecting your designation manually.")
 
-            return redirect('candidate_dashboard')
-    else:
-        form = ResumeUploadForm(instance=profile)
-    return render(request, 'candidate/upload_resume.html', {'form': form})
+        if is_ajax:
+            return JsonResponse({"success": True, "redirect": reverse("candidate_dashboard")})
+        return redirect("candidate_dashboard")
+
+    form = ResumeUploadForm(instance=profile)
+    return render(request, "candidate/upload_resume.html", {"form": form})
 
 @login_required
 def select_designation(request):

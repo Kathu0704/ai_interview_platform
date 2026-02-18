@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',  # Must be before 'django.contrib.staticfiles'
+    'cloudinary',
     'candidate',
     'hr',
     'adminpanel',
@@ -148,8 +150,27 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Cloudinary Configuration
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+# Configure Cloudinary
+# If CLOUDINARY_URL is set, it will be used automatically by django-cloudinary-storage
+# For explicit config, use individual environment variables or fallback to provided defaults
+if not os.environ.get('CLOUDINARY_URL'):
+    cloudinary.config(
+        cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dmjuexxqy'),
+        api_key=os.environ.get('CLOUDINARY_API_KEY', '271748752754562'),
+        api_secret=os.environ.get('CLOUDINARY_API_SECRET', '66XtCjE1k13oUBpDxrEzmQ6IsDU'),
+        secure=True
+    )
+
+# Use Cloudinary for media files (resumes)
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Media URL and Root (for backward compatibility, but files go to Cloudinary)
 MEDIA_URL = '/media/'
-# Use MEDIA_ROOT from env on Render (e.g. persistent disk path). Default: project media/ (ephemeral on Render).
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT') or str(BASE_DIR / 'media')
 
 LOGIN_URL = '/adminpanel/login/'

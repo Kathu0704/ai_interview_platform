@@ -4,10 +4,16 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 import string
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 class CandidateProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    resume = models.FileField(upload_to='resumes/', null=True, blank=True)
+    resume = models.FileField(
+        storage=MediaCloudinaryStorage(),
+        upload_to='resumes/',
+        null=True,
+        blank=True
+    )
     name = models.CharField(max_length=100)  # Full Name
     dob = models.DateField(null=True, blank=True)
     field = models.CharField(max_length=100, blank=True, null=True)
