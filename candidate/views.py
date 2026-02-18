@@ -302,24 +302,19 @@ def upload_resume(request):
                 return JsonResponse({"error": "Failed to save the file. Please try again."}, status=500)
             raise
 
-        # Best-effort parsing: use URL for Cloudinary, path for local storage
-        resume_path_or_url = None
+        # Best-effort parsing: Cloudinary-friendly – always use URL
+        resume_url = None
         if profile.resume:
             try:
-                # Try to get local path first (for local storage)
-                resume_path_or_url = profile.resume.path
-            except (ValueError, AttributeError):
-                # If .path doesn't work, use URL (for Cloudinary/remote storage)
-                try:
-                    resume_path_or_url = profile.resume.url
-                    print(f"📎 Using resume URL for parsing: {resume_path_or_url[:50]}...")
-                except Exception as e:
-                    print(f"⚠️ Could not get resume path or URL: {e}")
-                    resume_path_or_url = None
+                resume_url = profile.resume.url
+                print(f"📎 Using resume URL for parsing: {resume_url[:50]}...")
+            except Exception as e:
+                print(f"⚠️ Could not get resume URL: {e}")
+                resume_url = None
 
-        if resume_path_or_url:
+        if resume_url:
             try:
-                parsed = parse_resume_and_detect_field(resume_path_or_url)
+                parsed = parse_resume_and_detect_field(resume_url)
                 detected_field = parsed.get("field") or ""
                 if detected_field:
                     profile.field = detected_field
