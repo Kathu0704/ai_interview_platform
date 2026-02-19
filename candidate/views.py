@@ -318,17 +318,32 @@ def upload_resume(request):
                 return JsonResponse({"error": "Failed to save the file. Please try again."}, status=500)
             raise
 
-        # Best-effort parsing: use storage API to read file, not direct Cloudinary URL
+        # Best-effort parsing: fetch via Cloudinary signed URL to bypass account restrictions
         temp_resume_path = None
         if profile.resume:
             try:
-                with profile.resume.open("rb") as src, tempfile.NamedTemporaryFile(
-                    delete=False, suffix=".pdf"
-                ) as tmp:
-                    for chunk in src:
-                        tmp.write(chunk)
+                import requests as http_requests
+                from cloudinary.utils import cloudinary_url
+
+                # Generate signed URL to bypass Cloudinary account restrictions
+                public_id = profile.resume.name
+                signed_url, _ = cloudinary_url(
+                    public_id,
+                    resource_type="raw",
+                    type="upload",
+                    sign_url=True,
+                    secure=True,
+                )
+
+                print(f"🔗 Fetching resume via signed URL: {signed_url}")
+                response = http_requests.get(signed_url, timeout=30)
+                response.raise_for_status()
+
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                    tmp.write(response.content)
                     temp_resume_path = tmp.name
                 print(f"📎 Created local temp resume for parsing: {temp_resume_path}")
+
             except Exception as e:
                 print(f"⚠️ Could not create temp resume file for parsing: {e}")
                 temp_resume_path = None
