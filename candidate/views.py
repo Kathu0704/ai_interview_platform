@@ -321,31 +321,39 @@ def upload_resume(request):
                 return JsonResponse({"error": f"Save failed: {str(e)}"}, status=500)
             raise
 
-        # Best-effort parsing: fetch via Cloudinary signed URL to bypass account restrictions
+        # Best-effort parsing: download via Cloudinary Python SDK using API credentials
         temp_resume_path = None
         if profile.resume:
             try:
-                import requests as http_requests
-                from cloudinary.utils import cloudinary_url
-
-                # Generate signed URL to bypass Cloudinary account restrictions
+                import cloudinary.api
+                import cloudinary.uploader
+                
+                # Get public_id without extension
                 public_id = profile.resume.name
-                signed_url, _ = cloudinary_url(
+                if public_id.lower().endswith('.pdf'):
+                    public_id = public_id[:-4]
+                
+                print(f"📥 Downloading resume via Cloudinary API: {public_id}")
+                
+                # Download directly using Cloudinary SDK
+                result = cloudinary.uploader.explicit(
                     public_id,
-                    resource_type="raw",
                     type="upload",
-                    sign_url=True,
-                    secure=True,
+                    resource_type="raw"
                 )
-
-                print(f"🔗 Fetching resume via signed URL: {signed_url}")
-                response = http_requests.get(signed_url, timeout=30)
+                
+                # Use the secure URL from the API response
+                download_url = result.get('secure_url')
+                print(f"🔗 Got URL from API: {download_url}")
+                
+                import requests as http_requests
+                response = http_requests.get(download_url, timeout=30)
                 response.raise_for_status()
-
+                
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                     tmp.write(response.content)
                     temp_resume_path = tmp.name
-                print(f"📎 Created local temp resume for parsing: {temp_resume_path}")
+                print(f"📎 Created temp resume: {temp_resume_path}")
 
             except Exception as e:
                 print(f"⚠️ Could not create temp resume file for parsing: {e}")
