@@ -28,9 +28,21 @@
             
             <div class="profile-info">
                 <div class="profile-card">
-                    <div class="profile-label">Resume Field</div>
+                    <div class="profile-label">Resume Status</div>
+                    <div class="profile-value">
+                        {% if profile.resume %}
+                            ✅ Uploaded
+                        {% else %}
+                            ❌ Not Uploaded
+                        {% endif %}
+                    </div>
+                </div>
+                {% if profile.field %}
+                <div class="profile-card">
+                    <div class="profile-label">Field</div>
                     <div class="profile-value">{{ profile.field }}</div>
                 </div>
+                {% endif %}
                 {% if profile.designation %}
                 <div class="profile-card">
                     <div class="profile-label">Current Designation</div>

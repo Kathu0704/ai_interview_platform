@@ -311,8 +311,26 @@ def upload_resume(request):
 
         # Store current designation before updating
         current_designation = profile.designation
+
+        # Parse resume BEFORE saving to Cloudinary (file is in memory here)
+        temp_resume_path = None
+        uploaded_file = request.FILES.get('resume')
+        if uploaded_file:
+            try:
+                suffix = '.pdf' if uploaded_file.name.lower().endswith('.pdf') else '.docx'
+                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                    for chunk in uploaded_file.chunks():
+                        tmp.write(chunk)
+                    temp_resume_path = tmp.name
+                # Reset file pointer so form.save() can still upload it
+                uploaded_file.seek(0)
+                print(f"📎 Created temp resume for parsing: {temp_resume_path}")
+            except Exception as e:
+                print(f"⚠️ Could not create temp file: {e}")
+                temp_resume_path = None
+
         try:
-            form.save()
+            form.save()  # Upload to Cloudinary
         except Exception as e:
             print(f"❌ FORM SAVE ERROR: {type(e).__name__}: {e}")
             import traceback
@@ -321,44 +339,7 @@ def upload_resume(request):
                 return JsonResponse({"error": f"Save failed: {str(e)}"}, status=500)
             raise
 
-        # Best-effort parsing: download via Cloudinary Python SDK using API credentials
-        temp_resume_path = None
-        if profile.resume:
-            try:
-                import cloudinary.api
-                import cloudinary.uploader
-                
-                # Get public_id without extension
-                public_id = profile.resume.name
-                if public_id.lower().endswith('.pdf'):
-                    public_id = public_id[:-4]
-                
-                print(f"📥 Downloading resume via Cloudinary API: {public_id}")
-                
-                # Download directly using Cloudinary SDK
-                result = cloudinary.uploader.explicit(
-                    public_id,
-                    type="upload",
-                    resource_type="raw"
-                )
-                
-                # Use the secure URL from the API response
-                download_url = result.get('secure_url')
-                print(f"🔗 Got URL from API: {download_url}")
-                
-                import requests as http_requests
-                response = http_requests.get(download_url, timeout=30)
-                response.raise_for_status()
-                
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-                    tmp.write(response.content)
-                    temp_resume_path = tmp.name
-                print(f"📎 Created temp resume: {temp_resume_path}")
-
-            except Exception as e:
-                print(f"⚠️ Could not create temp resume file for parsing: {e}")
-                temp_resume_path = None
-
+        # Parse from temp file created before upload
         if temp_resume_path:
             try:
                 parsed = parse_resume_and_detect_field(temp_resume_path)
@@ -383,20 +364,17 @@ def upload_resume(request):
                     else:
                         messages.success(request, f"Resume parsed as {profile.field}. Please select your designation.")
                 else:
-                    messages.warning(request, "Resume uploaded, but automatic parsing could not confidently detect IT / Non-IT. Please select your designation manually.")
+                    messages.warning(request, "Resume uploaded but could not detect IT/Non-IT. Please select manually.")
             except Exception as e:
                 print(f"❌ Resume parsing failed: {e}")
-                messages.warning(
-                    request,
-                    "Resume uploaded, but automatic parsing failed. You can still continue by selecting your designation manually.",
-                )
+                messages.warning(request, "Resume uploaded, but parsing failed. Please select your designation manually.")
             finally:
                 try:
                     if temp_resume_path and os.path.exists(temp_resume_path):
                         os.unlink(temp_resume_path)
-                        print(f"🧹 Removed temp resume file: {temp_resume_path}")
+                        print(f"🧹 Removed temp file: {temp_resume_path}")
                 except Exception as e:
-                    print(f"⚠️ Failed to delete temp resume file: {e}")
+                    print(f"⚠️ Failed to delete temp file: {e}")
 
         if is_ajax:
             return JsonResponse({"success": True, "redirect": reverse("candidate_dashboard")})
