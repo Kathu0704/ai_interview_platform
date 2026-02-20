@@ -314,8 +314,11 @@ def upload_resume(request):
         try:
             form.save()
         except Exception as e:
+            print(f"❌ FORM SAVE ERROR: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
             if is_ajax:
-                return JsonResponse({"error": "Failed to save the file. Please try again."}, status=500)
+                return JsonResponse({"error": f"Save failed: {str(e)}"}, status=500)
             raise
 
         # Best-effort parsing: fetch via Cloudinary signed URL to bypass account restrictions
