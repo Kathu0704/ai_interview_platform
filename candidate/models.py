@@ -4,13 +4,14 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 import string
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
+from ai_interview_platform.supabase_storage import SupabaseStorage
+
 
 class CandidateProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # Store resumes as Cloudinary “raw” files so PDFs are accessible via URL
     resume = models.FileField(
-        storage=RawMediaCloudinaryStorage(),
+        storage=SupabaseStorage(),
         upload_to='resumes/',
         null=True,
         blank=True,

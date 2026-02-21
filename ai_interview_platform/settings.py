@@ -46,12 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage',  # Must be before 'django.contrib.staticfiles'
-    'cloudinary',
     'candidate',
     'hr',
     'adminpanel',
-    
 ]
 
 MIDDLEWARE = [
@@ -151,33 +148,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Cloudinary Configuration
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+# Supabase Storage (resumes)
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_ANON_KEY = os.environ.get('SUPABASE_ANON_KEY')
 
-# Configure Cloudinary
-# If CLOUDINARY_URL is set, it will be used automatically by django-cloudinary-storage
-# For explicit config, use individual environment variables or fallback to provided defaults
-if not os.environ.get('CLOUDINARY_URL'):
-    cloudinary.config(
-        cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
-        api_key=os.environ.get('CLOUDINARY_API_KEY'),
-        api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
-        secure=True
-    )
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-    'SECURE': True,
-}
-
-# Use Cloudinary for media files (store as \"raw\" so PDFs and docs work correctly)
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
-
-# Media URL and Root (for backward compatibility, but files go to Cloudinary)
+# Media URL and Root (for backward compatibility; resume files go to Supabase)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT') or str(BASE_DIR / 'media')
 
